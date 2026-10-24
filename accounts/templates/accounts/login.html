@@ -1,0 +1,175 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Welcome Back - Log In</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Accounts CSS -->
+    <link
+        rel="stylesheet"
+        href="{% static 'accounts/css/style.css' %}"
+    >
+</head>
+
+<body>
+
+    <main class="login-card">
+
+        <!-- LEFT: MOUNTAIN IMAGE -->
+        <div class="login-image">
+
+            <img
+                src="{% static 'accounts/images/login_picture.png' %}"
+                alt="Hikers celebrating on top of a mountain peak"
+            >
+
+            <!-- Image overlay -->
+            <div class="image-overlay"></div>
+
+            <!-- Tagline -->
+            <div class="image-tagline">
+
+                <p>EXPLORE TOGETHER</p>
+
+                <span>
+                    Every peak brings a new story worth sharing.
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT: LOGIN FORM -->
+        <div class="login-form">
+
+            <!-- Title -->
+            <div class="login-header">
+
+                <h1>WELCOME BACK</h1>
+
+                <h2>LOG IN</h2>
+
+            </div>
+
+
+            <!-- Django messages -->
+            {% if messages %}
+
+                {% for message in messages %}
+
+                    <p class="error">
+                        {{ message }}
+                    </p>
+
+                {% endfor %}
+
+            {% endif %}
+
+
+            <!-- LOGIN FORM -->
+            <form
+                method="POST"
+                class="form-container"
+            >
+
+                {% csrf_token %}
+
+
+                <!-- Username -->
+                <div>
+
+                    <label
+                        for="username"
+                        class="sr-only"
+                    >
+                        Username or Email
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="USERNAME OR EMAIL"
+                        required
+                        autocomplete="username"
+                        class="custom-input"
+                    >
+
+                </div>
+
+
+                <!-- Password -->
+                <div>
+
+                    <label
+                        for="password"
+                        class="sr-only"
+                    >
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="PASSWORD"
+                        required
+                        autocomplete="current-password"
+                        class="custom-input"
+                    >
+
+                </div>
+
+
+                <!-- Login button -->
+                <button
+                    type="submit"
+                    class="btn-login"
+                >
+                    Login
+                </button>
+
+            </form>
+
+
+            <!-- Links -->
+            <div class="footer-links">
+
+                <div>
+                    <a href="{% url 'accounts:password_reset' %}">
+                        Forgot your password?
+                    </a>
+                </div>
+
+                <div class="signup-text">
+
+                    Don't have an account?
+
+                    <a href="{% url 'accounts:signup' %}">
+                        Sign up
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+</html>
