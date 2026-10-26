@@ -14,24 +14,20 @@
             {% for post in post_list %}
             <article class="da-post" data-post-id="{{ post.pk }}">
                 <div class="da-post-card">
-                    {% if post.image %}<img src="{{ post.image.url }}" alt="Photo shared by {{ post.author_name }}" loading="lazy">{% else %}<p>{{ post.caption }}</p>{% endif %}
+                    {% if post.image %}<a href="{{ post.get_absolute_url }}" aria-label="View post details"><img src="{{ post.image.url }}" alt="Photo shared by {{ post.author_name }}" loading="lazy"></a>{% else %}<p>{{ post.caption }}</p>{% endif %}
                 </div>
                 <div class="da-post-actions">
                     {% if request.user.is_authenticated %}
                     <form method="post" action="{% url 'community:post_like' post.pk %}" data-like-form>
                         {% csrf_token %}<input type="hidden" name="liked" value="{% if post.pk in liked_post_ids %}0{% else %}1{% endif %}">
-                        <button type="submit" class="da-icon-button{% if post.pk in liked_post_ids %} da-is-liked{% endif %}" data-like-button aria-pressed="{% if post.pk in liked_post_ids %}true{% else %}false{% endif %}" aria-label="{% if post.pk in liked_post_ids %}Unlike{% else %}Like{% endif %} post" title="{{ post.num_likes }} likes">Like<span class="da-sr-only" data-like-count>{{ post.num_likes }} likes</span></button>
+                        <button type="submit" class="da-icon-button{% if post.pk in liked_post_ids %} da-is-liked{% endif %}" data-like-button aria-pressed="{% if post.pk in liked_post_ids %}true{% else %}false{% endif %}" aria-label="{% if post.pk in liked_post_ids %}Unlike{% else %}Like{% endif %} post" title="{{ post.num_likes }} likes"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M7 10v10H4V10h3Zm0 0 4-8c1.1 0 2 .9 2 2v3h5.5a2 2 0 0 1 1.96 2.39l-1.1 6A2 2 0 0 1 17.4 17H7"/></svg><span class="da-sr-only" data-like-count>{{ post.num_likes }} likes</span></button>
                     </form>
-                    <a href="{% url 'community:comment_create' post.pk %}" class="da-icon-button" data-comment-url="{% url 'community:comment_create' post.pk %}" aria-label="Add comment">Comment</a>
+                    <a href="{% url 'community:comment_create' post.pk %}" class="da-icon-button" data-comment-url="{% url 'community:comment_create' post.pk %}" aria-label="Add comment" title="Add comment"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 3v-5.5A7.5 7.5 0 0 1 10.5 4h2A7.5 7.5 0 0 1 20 11.5Z"/></svg></a>
                     {% else %}
-                    <a class="da-icon-button" href="{{ login_url }}" aria-label="Sign in to like this post" title="{{ post.num_likes }} likes">Like</a>
-                    <a class="da-icon-button" href="{{ login_url }}" aria-label="Sign in to comment">Comment</a>
+                    <a class="da-icon-button" href="{{ login_url }}" aria-label="Sign in to like this post" title="{{ post.num_likes }} likes"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M7 10v10H4V10h3Zm0 0 4-8c1.1 0 2 .9 2 2v3h5.5a2 2 0 0 1 1.96 2.39l-1.1 6A2 2 0 0 1 17.4 17H7"/></svg></a>
+                    <a class="da-icon-button" href="{{ login_url }}" aria-label="Sign in to comment" title="Sign in to comment"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 3v-5.5A7.5 7.5 0 0 1 10.5 4h2A7.5 7.5 0 0 1 20 11.5Z"/></svg></a>
                     {% endif %}
-                    {% if request.user == post.author or request.user.is_staff %}<a href="{% url 'community:post_delete' post.pk %}" class="da-icon-button da-delete-button" data-delete-url="{% url 'community:post_delete' post.pk %}" aria-label="Delete post">Delete</a>{% endif %}
-                    <div class="da-menu-wrapper">
-                        <button type="button" class="da-icon-button" data-menu-toggle="da-post-menu-{{ post.pk }}" aria-controls="da-post-menu-{{ post.pk }}" aria-expanded="false" aria-label="More post options">More</button>
-                        <div id="da-post-menu-{{ post.pk }}" class="da-post-menu" hidden><a href="{{ post.get_absolute_url }}" data-detail-id="{{ post.pk }}">Info More details</a></div>
-                    </div>
+                    {% if request.user == post.author or request.user.is_staff %}<a href="{% url 'community:post_delete' post.pk %}" class="da-icon-button da-delete-button" data-delete-url="{% url 'community:post_delete' post.pk %}" aria-label="Delete post" title="Delete post"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4-6v6M9 7V4h6v3m-9 0 1 13h8l1-13"/></svg></a>{% endif %}
                 </div>
                 <noscript><p><a href="{{ post.get_absolute_url }}">More details and comments</a></p></noscript>
                 <!-- Inert until cloned into the details dialog; Django still escapes all text. -->
