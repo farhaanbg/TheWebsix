@@ -1,0 +1,1417 @@
+/* Dina Arobi Hikes - the single shared stylesheet.
+   Page components use .da-page; the optional supplied navbar uses .da-navbar.
+   Shell rules apply only to elements carrying the .da-shell classes. */
+
+/* ===== Optional supplied document shell and navbar ===== */
+
+.da-shell {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #0c1510;
+    color: #fff;
+    font: 400 16px/1.5 "Inter", Arial, sans-serif;
+}
+
+.da-shell-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.da-navbar, .da-navbar * {
+    box-sizing: border-box;
+}
+
+.da-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: #111e16;
+    border-bottom: 1px solid #1b2b1e;
+    box-shadow: 0 4px 6px -1px #0002;
+}
+
+.da-navbar .da-navbar-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.da-navbar .da-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.da-navbar .da-brand-mark {
+    width: 40px;
+    height: 40px;
+    background: #34a853;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.da-navbar .da-brand h1 {
+    margin: 4px 0 0;
+    color: #fff;
+    font: 700 20px/1.4 Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+    letter-spacing: 2px;
+}
+
+.da-navbar .da-icon {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vertical-align: middle;
+}
+
+.da-navbar .da-brand-mark .da-icon {
+    width: 19px;
+    height: 19px;
+}
+
+.da-navbar .da-navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.da-navbar .da-nav-link {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 8px;
+    color: #d1d5db;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color .15s, background .15s;
+}
+
+.da-navbar a.da-nav-link:hover {
+    color: #fff;
+    background: #1a2e21;
+}
+
+.da-navbar .da-nav-link.active {
+    color: #fff;
+    background: #1e3828;
+}
+
+.da-navbar .da-navbar-tools {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    color: #d1d5db;
+}
+
+.da-navbar .da-nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.da-navbar .da-nav-icon:hover {
+    color: #fff;
+}
+
+.da-navbar .da-nav-icon:disabled {
+    cursor: default;
+}
+
+.da-navbar .da-notification {
+    position: relative;
+}
+
+.da-navbar .da-notification-dot {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: #e2ba22;
+    border-radius: 50%;
+}
+
+.da-navbar .da-navbar-avatar {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #2c523a;
+    border-radius: 50%;
+    background: #1e3828;
+    color: #2ea859;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.da-navbar a:focus-visible, .da-navbar button:focus-visible {
+    outline: 2px solid #e2ba22;
+    outline-offset: 3px;
+}
+
+@media (max-width: 1100px) {
+    .da-navbar .da-nav-link {
+        padding: 8px 11px;
+    }
+
+    .da-navbar .da-navbar-inner {
+        gap: 16px;
+    }
+
+}
+
+@media (max-width: 850px) {
+    .da-navbar .da-navbar-inner {
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        padding: 12px 16px;
+    }
+
+    .da-navbar .da-navbar-links {
+        order: 3;
+        width: 100%;
+        overflow-x: auto;
+        gap: 4px;
+    }
+
+    .da-navbar .da-nav-link {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+}
+
+/* ===== Reviews, community, dialogs, forms and sign-in page ===== */
+
+.da-page {
+    --da-bg: #0c1510;
+    --da-card: #84a58d;
+    --da-yellow: #e2ba22;
+    --da-green: #2ea859;
+    --da-border: #2a3f30;
+    display: block;
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    background: var(--da-bg);
+    color: #fff;
+    font: 400 16px/1.5 "Inter", Arial, sans-serif;
+    text-align: left;
+    color-scheme: dark;
+}
+
+.da-page *, .da-page *::before, .da-page *::after {
+    box-sizing: border-box;
+}
+
+.da-page :where(h2, h3, h4, h5, p, form, fieldset, legend) {
+    margin: 0;
+    padding: 0;
+    font-family: inherit;
+}
+
+.da-page :where(button, input, textarea, select) {
+    font: inherit;
+}
+
+.da-page button {
+    cursor: pointer;
+}
+
+.da-page button:disabled {
+    cursor: wait;
+    opacity: .65;
+}
+
+.da-page a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.da-page img {
+    display: block;
+    max-width: 100%;
+}
+
+.da-page [hidden] {
+    display: none !important;
+}
+
+.da-page .da-container {
+    width: 100%;
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 40px 16px;
+}
+
+.da-page .da-heading {
+    color: #fff;
+    font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.da-page .da-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vertical-align: middle;
+}
+
+.da-page .da-star-filled {
+    fill: currentColor;
+}
+
+.da-page .da-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 32px;
+    border: 0;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 700;
+    box-shadow: 0 10px 15px -3px #0002, 0 4px 6px -4px #0002;
+    text-decoration: none;
+    transition: background .15s, transform .15s;
+}
+
+.da-page .da-button:hover {
+    transform: scale(1.05);
+}
+
+.da-page .da-button:active {
+    transform: scale(.95);
+}
+
+.da-page .da-button-yellow {
+    background: var(--da-yellow);
+    color: #111;
+}
+
+.da-page .da-button-yellow:hover {
+    background: #c9a419;
+}
+
+.da-page .da-button-green {
+    background: var(--da-green);
+    color: #fff;
+}
+
+.da-page .da-button-green:hover {
+    background: #248c48;
+}
+
+.da-page .da-button-compact {
+    padding: 8px 24px;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.da-page .da-button-secondary {
+    background: #1e3828;
+    color: #fff;
+}
+
+.da-page .da-button-danger {
+    background: #b93737;
+    color: #fff;
+}
+
+.da-page .da-button-danger:hover {
+    background: #982d2d;
+}
+
+.da-page .da-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color .15s, transform .15s;
+}
+
+.da-page .da-icon-button:hover {
+    color: var(--da-yellow);
+    transform: scale(1.1);
+}
+
+.da-page .da-icon-button:active {
+    transform: scale(.95);
+}
+
+.da-page :where(button, a, input, textarea):focus-visible {
+    outline: 2px solid var(--da-yellow);
+    outline-offset: 3px;
+}
+
+.da-page .da-muted {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.da-page .da-empty {
+    grid-column: 1 / -1;
+    padding: 40px 24px;
+    border: 1px dashed var(--da-border);
+    border-radius: 20px;
+    color: #d1d5db;
+    text-align: center;
+    font-size: 14px;
+}
+
+.da-page .da-preserve-lines {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.da-page .da-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.da-page .da-status {
+    margin-top: 24px;
+    padding: 12px 16px;
+    border: 1px solid #9b6530;
+    border-radius: 8px;
+    color: #f7d39c;
+    font-size: 14px;
+}
+
+/* Reviews: original sage hero, yellow controls, three recent cards. */
+
+.da-page .da-review-hero {
+    margin-bottom: 32px;
+    padding: 56px 32px;
+    border: 1px solid #9abfce33;
+    border-radius: 40px;
+    background: var(--da-card);
+    text-align: center;
+    box-shadow: 0 20px 25px -5px #0002, 0 8px 10px -6px #0002;
+    overflow: hidden;
+}
+
+.da-page .da-review-hero h2 {
+    margin-bottom: 16px;
+    text-shadow: 0 3px 3px #0002;
+}
+
+.da-page .da-review-hero p {
+    max-width: 576px;
+    margin: 0 auto;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.625;
+    text-shadow: 0 1px 2px #0002;
+}
+
+.da-page .da-review-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+.da-page .da-review-summary {
+    margin-bottom: 32px;
+}
+
+.da-page .da-review-summary h3 {
+    margin-bottom: 8px;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 32px;
+}
+
+.da-page .da-divider {
+    height: 1px;
+    margin-bottom: 16px;
+    background: #6b72804d;
+}
+
+.da-page .da-review-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+    color: #d1d5db;
+    font-size: 14px;
+}
+
+.da-page .da-review-stats strong {
+    margin-left: 4px;
+    color: #fff;
+    font-weight: 600;
+}
+
+.da-page .da-summary-star {
+    width: 12px;
+    height: 12px;
+    margin-left: 4px;
+    color: var(--da-yellow);
+}
+
+.da-page .da-review-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+}
+
+.da-page .da-review-card {
+    min-height: 256px;
+    padding: 24px;
+    border-radius: 24px;
+    background: var(--da-card);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+    box-shadow: 0 10px 15px -3px #0002;
+    overflow-wrap: anywhere;
+}
+
+.da-page .da-review-card-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.da-page .da-review-avatar {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    border-radius: 50%;
+    background: #d1d5db;
+    box-shadow: inset 0 2px 4px #0001;
+}
+
+.da-page .da-review-card h4 {
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+}
+
+.da-page .da-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--da-yellow);
+}
+
+.da-page .da-stars .da-icon {
+    width: 12px;
+    height: 12px;
+}
+
+.da-page .da-review-card .da-stars {
+    margin-bottom: 16px;
+}
+
+.da-page .da-review-excerpt {
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 500;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
+}
+
+.da-page .da-review-card time {
+    margin-top: 16px;
+    font-size: 12px;
+}
+
+.da-page .da-review-list {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.da-page .da-review-list-item {
+    margin-bottom: 16px;
+    padding: 16px;
+    border: 1px solid var(--da-border);
+    border-radius: 12px;
+    background: #15241b;
+}
+
+.da-page .da-review-list-item:last-child {
+    margin-bottom: 0;
+}
+
+.da-page .da-review-list-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.da-page .da-review-list-meta > div {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.da-page .da-small-avatar {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--da-card);
+    box-shadow: inset 0 2px 4px #0001;
+}
+
+.da-page .da-review-list-meta strong {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.da-page .da-review-list-meta time {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.da-page .da-review-list-item .da-stars {
+    margin-bottom: 8px;
+}
+
+.da-page .da-review-list-item p {
+    color: #e5e7eb;
+    font-size: 14px;
+}
+
+/* Community: original square cards, captions/photos, action row and popover. */
+
+.da-page .da-community-heading {
+    margin-bottom: 32px;
+}
+
+.da-page .da-community-heading h2 {
+    margin-bottom: 8px;
+}
+
+.da-page .da-community-heading > p {
+    color: var(--da-yellow);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 16px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.da-page .da-new-post-row {
+    margin-bottom: 40px;
+}
+
+.da-page .da-new-post-button {
+    padding: 10px 24px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: .3px;
+}
+
+.da-page .da-new-post-button .da-icon {
+    width: 12px;
+    height: 12px;
+    stroke-width: 2.4;
+}
+
+.da-page .da-post-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+}
+
+.da-page .da-post {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-width: 0;
+}
+
+.da-page .da-post-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 1;
+    margin-bottom: 16px;
+    border-radius: 32px;
+    background: var(--da-card);
+    overflow: hidden;
+    box-shadow: 0 10px 15px -3px #0002;
+}
+
+.da-page .da-post-card > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.da-page .da-post-card > p {
+    width: 100%;
+    max-height: 100%;
+    padding: 24px;
+    overflow-y: auto;
+    color: #fff;
+    text-align: center;
+    font-size: 14px;
+    text-shadow: 0 3px 3px #0002;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.da-page .da-post-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    padding: 0 8px;
+    color: #fff;
+}
+
+.da-page .da-post-actions form {
+    display: flex;
+    align-items: center;
+}
+
+.da-page .da-is-liked {
+    color: var(--da-yellow);
+}
+
+.da-page .da-is-liked .da-icon {
+    fill: currentColor;
+    stroke-width: 1.2;
+}
+
+.da-page .da-delete-button:hover {
+    color: #f87171;
+}
+
+.da-page .da-menu-wrapper {
+    position: relative;
+}
+
+.da-page .da-post-menu {
+    position: absolute;
+    right: 0;
+    bottom: 36px;
+    z-index: 10;
+    width: 136px;
+    padding: 4px 0;
+    border: 1px solid var(--da-border);
+    border-radius: 8px;
+    background: #15241b;
+    box-shadow: 0 20px 25px -5px #0003;
+}
+
+.da-page .da-post-menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    border: 0;
+    background: transparent;
+    color: #e5e7eb;
+    text-align: left;
+    font-size: 12px;
+}
+
+.da-page .da-post-menu button:hover {
+    background: #1e3828;
+    color: #fff;
+}
+
+.da-page .da-post-menu .da-icon {
+    width: 13px;
+    height: 13px;
+}
+
+.da-page .da-back-row {
+    margin-top: 64px;
+    text-align: center;
+}
+
+.da-page .da-back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1.2px;
+}
+
+.da-page .da-back-link:hover {
+    color: #fff;
+}
+
+.da-page .da-back-link .da-icon {
+    width: 10px;
+    height: 10px;
+}
+
+/* Native dialogs sit above any navbar, including one from a replacement base. */
+
+.da-page .da-dialog {
+    position: fixed;
+    inset: 0;
+    width: min(448px, calc(100% - 32px));
+    max-width: none;
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    overflow-y: auto;
+    background: transparent;
+    color: #fff;
+    text-align: left;
+}
+
+.da-page .da-dialog:not([open]) {
+    display: none;
+}
+
+.da-page .da-dialog[open] {
+    display: block;
+}
+
+.da-page .da-dialog::backdrop {
+    background: #000c;
+}
+
+.da-page .da-details-dialog::backdrop {
+    background: #000e;
+}
+
+.da-page .da-dialog-small {
+    width: min(384px, calc(100% - 32px));
+}
+
+.da-page .da-dialog-wide {
+    width: min(672px, calc(100% - 32px));
+}
+
+.da-page .da-modal-panel {
+    position: relative;
+    width: 100%;
+    padding: 24px;
+    border: 1px solid var(--da-border);
+    border-radius: 16px;
+    background: var(--da-bg);
+}
+
+.da-page .da-modal-panel > h3 {
+    margin-bottom: 16px;
+    padding-right: 32px;
+    color: #fff;
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 700;
+}
+
+.da-page .da-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #9ca3af;
+}
+
+.da-page .da-close:hover {
+    color: #fff;
+}
+
+.da-page .da-list-panel {
+    display: flex;
+    flex-direction: column;
+    max-height: 80dvh;
+    padding: 0;
+    overflow: hidden;
+}
+
+.da-page .da-modal-heading {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px;
+    border-bottom: 1px solid var(--da-border);
+    background: #111e16;
+}
+
+.da-page .da-modal-heading h3 {
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 700;
+}
+
+.da-page .da-form > * + * {
+    margin-top: 16px;
+}
+
+.da-page .da-field > label, .da-page .da-rating-field > legend {
+    display: block;
+    margin-bottom: 4px;
+    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    text-transform: uppercase;
+}
+
+.da-page .da-input, .da-page .da-login-form input:not([type="hidden"]) {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--da-border);
+    border-radius: 8px;
+    background: #15241b;
+    color: #fff;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.da-page textarea.da-input {
+    resize: vertical;
+    min-height: 86px;
+}
+
+.da-page .da-input:focus {
+    outline: none;
+    border-color: var(--da-yellow);
+}
+
+.da-page .da-form-green .da-input:focus {
+    border-color: var(--da-green);
+}
+
+.da-page .da-input::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+}
+
+.da-page .da-file-input::file-selector-button {
+    margin-right: 16px;
+    padding: 4px 12px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--da-green);
+    color: #fff;
+    font: 600 12px/18px "Inter", Arial, sans-serif;
+    cursor: pointer;
+}
+
+.da-page .da-file-input::file-selector-button:hover {
+    background: #248c48;
+}
+
+.da-page .da-field-help {
+    margin-top: 6px;
+    color: #9ca3af;
+    font-size: 11px;
+}
+
+.da-page .da-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 8px;
+}
+
+.da-page .da-rating-field {
+    border: 0;
+    min-width: 0;
+}
+
+.da-page .da-rating-field legend {
+    margin-bottom: 8px;
+}
+
+.da-page .da-rating-picker {
+    display: flex;
+    gap: 8px;
+    color: var(--da-yellow);
+}
+
+.da-page .da-rating-choice {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+}
+
+.da-page .da-rating-choice .da-icon {
+    width: 24px;
+    height: 24px;
+    transition: transform .15s;
+}
+
+.da-page .da-rating-choice:hover .da-icon {
+    transform: scale(1.2);
+}
+
+.da-page .da-rating-choice:has(input:focus-visible) {
+    outline: 2px solid var(--da-yellow);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+.da-page .errorlist {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    color: #fca5a5;
+    font-size: 12px;
+}
+
+.da-page .da-sign-in-link {
+    margin-top: 20px;
+}
+
+.da-page .da-login-panel {
+    max-width: 448px;
+    margin: 24px auto;
+    padding: 28px;
+    border: 1px solid var(--da-border);
+    border-radius: 16px;
+    background: #111e16;
+}
+
+.da-page .da-login-panel h2 {
+    margin-bottom: 12px;
+    color: #fff;
+    font-size: 24px;
+}
+
+.da-page .da-login-panel > p {
+    margin-bottom: 24px;
+}
+
+/* Full post details and comments. */
+
+.da-page .da-details-panel {
+    display: flex;
+    flex-direction: column;
+    max-height: 90dvh;
+    padding: 0;
+    overflow: hidden;
+    background: #111e16;
+    box-shadow: 0 25px 50px -12px #0004;
+}
+
+.da-page .da-details-heading {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 1px solid var(--da-border);
+    background: var(--da-bg);
+}
+
+.da-page .da-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.da-page .da-author-avatar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--da-card);
+    font-weight: 700;
+}
+
+.da-page .da-author h4 {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.da-page .da-author time {
+    color: #9ca3af;
+    font-size: 11px;
+}
+
+.da-page .da-details-scroll {
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.da-page .da-details-post {
+    padding: 20px;
+    border-bottom: 1px solid var(--da-border);
+}
+
+.da-page .da-details-post > p {
+    color: #fff;
+    font-size: 14px;
+}
+
+.da-page .da-details-image {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+}
+
+.da-page .da-details-image img {
+    width: auto;
+    max-height: 384px;
+    object-fit: contain;
+}
+
+.da-page .da-details-comments {
+    padding: 20px;
+}
+
+.da-page .da-details-comments h5 {
+    margin-bottom: 16px;
+    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+}
+
+.da-page .da-comment {
+    margin-bottom: 16px;
+    padding: 12px;
+    border: 1px solid var(--da-border);
+    border-radius: 8px;
+    background: #15241b;
+}
+
+.da-page .da-comment:last-child {
+    margin-bottom: 0;
+}
+
+.da-page .da-comment-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.da-page .da-comment-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--da-card);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.da-page .da-comment-author strong {
+    color: #fff;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.da-page .da-comment p {
+    margin-left: 32px;
+    color: #d1d5db;
+    font-size: 12px;
+}
+
+.da-page .da-no-comments {
+    font-size: 12px;
+}
+
+.da-page ::-webkit-scrollbar {
+    width: 6px;
+}
+
+.da-page ::-webkit-scrollbar-track {
+    background: var(--da-bg);
+}
+
+.da-page ::-webkit-scrollbar-thumb {
+    background: var(--da-card);
+    border-radius: 4px;
+}
+
+.da-page .da-fade-in {
+    animation: da-page-fade-in .2s ease-out both;
+}
+
+@keyframes da-page-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+@media (min-width: 768px) {
+    .da-page .da-heading {
+        font-size: 48px;
+    }
+
+    .da-page .da-review-hero p {
+        font-size: 16px;
+    }
+
+    .da-page .da-review-grid, .da-page .da-post-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 420px) {
+    .da-page .da-review-hero {
+        padding: 40px 24px;
+    }
+
+    .da-page .da-review-buttons {
+        gap: 12px;
+    }
+
+    .da-page .da-review-buttons .da-button {
+        padding: 12px 20px;
+    }
+
+    .da-page .da-heading {
+        font-size: 32px;
+    }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .da-page .da-fade-in {
+        animation: none;
+    }
+
+    .da-page *, .da-page *::before, .da-page *::after {
+        transition: none !important;
+    }
+
+}
+
+/* Classroom-style navbar list, preserving the horizontal Dina Arobi design. */
+
+.da-navbar .da-navbar-links ul {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.da-navbar .da-navbar-links li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.da-navbar .da-navbar-links li a {
+    display: block;
+}
+
+/* form.as_p, used on the add/edit-style pages just as in the classroom templates. */
+
+.da-page .da-form-container {
+    max-width: 640px;
+}
+
+.da-page .da-form-panel, .da-page .da-detail-page-panel {
+    background: #111e16;
+    border: 1px solid #2a3f30;
+    border-radius: 24px;
+    padding: 24px;
+}
+
+.da-page .da-form-panel h2 {
+    margin: 0 0 24px;
+    font-size: 24px;
+}
+
+.da-page .da-form p {
+    margin: 0 0 16px;
+}
+
+.da-page .da-form p > label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.da-page .da-form p > label:has(input[type="checkbox"]) {
+    line-height: 1.6;
+}
+
+.da-page .da-form .helptext {
+    display: block;
+    color: #c8d4cb;
+    font-size: 12px;
+}
+
+.da-page .da-form input[type="radio"], .da-page .da-form input[type="checkbox"] {
+    accent-color: #e2ba22;
+}
+
+.da-page .da-form #id_rating > div {
+    margin-bottom: 8px;
+}
+
+.da-page .da-text-link {
+    color: #e2ba22;
+    text-decoration: underline;
+}
+
+.da-page .da-detail-container {
+    max-width: 760px;
+}
+
+.da-page .da-detail-container > h2 {
+    margin-bottom: 24px;
+}
+
+.da-page .da-detail-page-panel {
+    padding: 0;
+    overflow: hidden;
+}
+
+.da-page .da-detail-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    margin-top: 24px;
+}
+
+.da-page .da-post-menu a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    color: #e5e7eb;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.da-page .da-post-menu a:hover {
+    background: #1e3828;
+}
+
+.da-page .da-post-menu a .da-icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* Without JavaScript, leave/create/details links still go to real Django views. */
+
+.da-page:not(.da-js-ready) #da-all-reviews {
+    display: block;
+    position: static;
+    max-height: none;
+    width: min(100%, 672px);
+    margin: 32px auto;
+}
+
+.da-page:not(.da-js-ready) #da-all-reviews .da-review-list {
+    max-height: none;
+}
+
+.da-page:not(.da-js-ready) #da-all-reviews [data-close-dialog],
+.da-page:not(.da-js-ready) [data-show-dialog="da-all-reviews"] {
+    display: none;
+}

@@ -1,0 +1,68 @@
+{% extends "community/base.html" %}
+{% block title %}Post Details | Dina Arobi Hikes{% endblock %}
+{% block content %}
+<section class="da-page">
+  <div class="da-container da-detail-container">
+    <h2 class="da-heading">POST DETAILS</h2>
+    <div class="da-detail-page-panel">
+      <div class="da-detail-author">
+        <div class="da-avatar">{{ post.author.username|first|upper }}</div>
+        <div>
+          <h3>{{ post.author.username }}</h3>
+          <span class="da-muted">{{ post.created_at|date:"d M Y, H:i:s" }}</span>
+        </div>
+      </div>
+      <div class="da-detail-caption"><p class="da-preserve-lines">{{ post.caption }}</p></div>
+      {% if post.image %}
+      <div class="da-detail-image-container">
+        <img src="{{ post.image.url }}" alt="Community post" class="da-detail-image">
+      </div>
+      {% endif %}
+      <div class="da-detail-stats">
+        {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'community:post_like' post.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="liked" value="{% if request.user in post.liked_by.all %}0{% else %}1{% endif %}">
+          <button type="submit" class="da-detail-action{% if request.user in post.liked_by.all %} da-is-liked{% endif %}" aria-label="{% if request.user in post.liked_by.all %}Unlike{% else %}Like{% endif %} post" title="{{ post.likes.count }} likes">
+            <svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M7 10v10H4V10h3Zm0 0 4-8c1.1 0 2 .9 2 2v3h5.5a2 2 0 0 1 1.96 2.39l-1.1 6A2 2 0 0 1 17.4 17H7"/></svg>
+            <span>{{ post.likes.count }}</span>
+          </button>
+        </form>
+        {% else %}
+        <a class="da-detail-action" href="{{ login_url }}" aria-label="Sign in to like this post" title="{{ post.likes.count }} likes">
+          <svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M7 10v10H4V10h3Zm0 0 4-8c1.1 0 2 .9 2 2v3h5.5a2 2 0 0 1 1.96 2.39l-1.1 6A2 2 0 0 1 17.4 17H7"/></svg>
+          <span>{{ post.likes.count }}</span>
+        </a>
+        {% endif %}
+        <a class="da-detail-action" href="{% url 'community:comment_create' post.pk %}" aria-label="Add comment" title="Add comment">
+          <svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 3v-5.5A7.5 7.5 0 0 1 10.5 4h2A7.5 7.5 0 0 1 20 11.5Z"/></svg>
+          <span>{{ post.comments.count }}</span>
+        </a>
+        {% if request.user == post.author or request.user.is_staff %}
+        <a href="{% url 'community:post_delete' post.pk %}" class="da-detail-action da-delete-button" aria-label="Delete post" title="Delete post"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4-6v6M9 7V4h6v3m-9 0 1 13h8l-1-13"/></svg></a>
+        {% endif %}
+      </div>
+      <div class="da-detail-comments">
+        <h4>Comments</h4>
+        {% for comment in post.comments.all %}
+        <div class="da-comment-card">
+          <div class="da-comment-author">
+            <div class="da-comment-avatar">{{ comment.author.username|first|upper }}</div>
+            <div>
+              <strong>{{ comment.author.username }}</strong>
+              <span class="da-muted">{{ comment.created_at|date:"d M Y, H:i:s" }}</span>
+            </div>
+          </div>
+          <p>{{ comment.text }}</p>
+        </div>
+        {% empty %}
+        <p class="da-muted">No comments yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="da-detail-links">
+      <a href="{% url 'community:community' %}" class="da-back-link">‹ Back to Community</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

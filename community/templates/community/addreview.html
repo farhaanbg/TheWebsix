@@ -1,0 +1,35 @@
+{% extends "community/base.html" %}
+{% block title %}Leave Feedback | Dina Arobi Hikes{% endblock %}
+{% block content %}
+<section class="da-page">
+  <div class="da-container da-form-container">
+    <div class="da-form-panel">
+      <h2>Leave Feedback</h2>
+      <p class="da-muted">Tell other hikers about your experience.</p>
+      <form method="post" class="da-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="da-form-errors">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="da-field">
+          <label>Rating</label>
+          <div class="da-rating-options">{{ form.rating }}</div>
+          {% if form.rating.errors %}<div class="da-field-errors">{{ form.rating.errors }}</div>{% endif %}
+        </div>
+        <div class="da-field">
+          <label for="{{ form.name.id_for_label }}">Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}<div class="da-field-errors">{{ form.name.errors }}</div>{% endif %}
+        </div>
+        <div class="da-field">
+          <label for="{{ form.text.id_for_label }}">Feedback</label>
+          {{ form.text }}
+          {% if form.text.errors %}<div class="da-field-errors">{{ form.text.errors }}</div>{% endif %}
+        </div>
+        <div class="da-form-actions">
+          <a href="{% url 'community:reviews' %}" class="da-text-link">Cancel</a>
+          <button type="submit" class="da-button da-button-yellow da-button-compact">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

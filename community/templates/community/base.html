@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dina Arobi Hikes{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/community/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="da-shell">
+    <!-- Only this template owns the navbar. The child pages never refer to its IDs. -->
+    <header class="da-navbar">
+        <div class="da-navbar-inner">
+            <div class="da-brand">
+                <span class="da-brand-mark" aria-hidden="true">^</span>
+                <h1>DINA AROBI</h1>
+            </div>
+            <nav class="da-navbar-links" aria-label="Main navigation">
+                {% block navbar %}
+                <ul>
+                    <li>{% if community_nav.home %}<a class="da-nav-link" href="{{ community_nav.home }}">Home</a>{% else %}<span class="da-nav-link" aria-disabled="true" title="Connect your existing Home URL">Home</span>{% endif %}</li>
+                    <li>{% if community_nav.hikes %}<a class="da-nav-link" href="{{ community_nav.hikes }}">Hikes</a>{% else %}<span class="da-nav-link" aria-disabled="true" title="Connect your existing Hikes URL">Hikes</span>{% endif %}</li>
+                    <li>{% if community_nav.bookings %}<a class="da-nav-link" href="{{ community_nav.bookings }}">My Bookings</a>{% else %}<span class="da-nav-link" aria-disabled="true" title="Connect your existing Bookings URL">My Bookings</span>{% endif %}</li>
+                    <li><a class="da-nav-link{% if active_class == 'community' %} active{% endif %}" href="{% url 'community:community' %}"{% if active_class == 'community' %} aria-current="page"{% endif %}>Community</a></li>
+                    <li><a class="da-nav-link{% if active_class == 'reviews' %} active{% endif %}" href="{% url 'community:reviews' %}"{% if active_class == 'reviews' %} aria-current="page"{% endif %}>Reviews</a></li>
+                </ul>
+                {% endblock navbar %}
+            </nav>
+            <div class="da-navbar-tools">
+                {% url 'community:login' as fallback_login %}
+                {% firstof community_nav.profile login_url fallback_login as profile_url %}
+                <a class="da-navbar-avatar" href="{{ profile_url }}" aria-label="{% if request.user.is_authenticated %}Account{% else %}Sign in{% endif %}">{% if request.user.is_authenticated %}{{ request.user.get_username|first|upper }}{% else %}M{% endif %}</a>
+            </div>
+        </div>
+    </header>
+    <main class="da-shell-content">
+        {% with da_style_loaded=True %}
+            {% block content %}{% endblock %}
+        {% endwith %}
+    </main>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
