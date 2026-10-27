@@ -1,0 +1,84 @@
+{% extends "community/base.html" %}
+{% load static %}
+{% block title %}Community | Dina Arobi Hikes{% endblock %}
+{% block content %}
+{# Like house_list.html: post_list is provided by generic.ListView. #}
+<section class="da-page" data-da-page="community" aria-labelledby="da-community-title">
+    <div class="da-container da-fade-in">
+        <div class="da-community-heading">
+            <h2 class="da-heading" id="da-community-title">COMMUNITY SECTION</h2>
+            <p>A PLACE TO WITNESS THE BEST</p>
+        </div>
+        <div class="da-new-post-row"><a href="{% url 'community:post_create' %}" class="da-button da-button-green da-new-post-button" data-show-dialog="da-new-post">+ NEW POST</a></div>
+        <div class="da-post-grid">
+            {% for post in post_list %}
+            <article class="da-post" data-post-id="{{ post.pk }}">
+                <div class="da-post-card">
+                    {% if post.image %}<a href="{{ post.get_absolute_url }}" aria-label="View post details"><img src="{{ post.image.url }}" alt="Photo shared by {{ post.author_name }}" loading="lazy"></a>{% else %}<p>{{ post.caption }}</p>{% endif %}
+                </div>
+                <div class="da-post-actions">
+                    {% if request.user.is_authenticated %}
+                    <form method="post" action="{% url 'community:post_like' post.pk %}" data-like-form>
+                        {% csrf_token %}<input type="hidden" name="liked" value="{% if post.pk in liked_post_ids %}0{% else %}1{% endif %}">
+                        <button type="submit" class="da-icon-button{% if post.pk in liked_post_ids %} da-is-liked{% endif %}" data-like-button aria-pressed="{% if post.pk in liked_post_ids %}true{% else %}false{% endif %}" aria-label="{% if post.pk in liked_post_ids %}Unlike{% else %}Like{% endif %} post" title="{{ post.num_likes }} likes"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M7 10v10H4V10h3Zm0 0 4-8c1.1 0 2 .9 2 2v3h5.5a2 2 0 0 1 1.96 2.39l-1.1 6A2 2 0 0 1 17.4 17H7"/></svg><span class="da-sr-only" data-like-count>{{ post.num_likes }} likes</span></button>
+                    </form>
+                    <a href="{% url 'community:comment_create' post.pk %}" class="da-icon-button" data-comment-url="{% url 'community:comment_create' post.pk %}" aria-label="Add comment" title="Add comment"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 3v-5.5A7.5 7.5 0 0 1 10.5 4h2A7.5 7.5 0 0 1 20 11.5Z"/></svg></a>
+                    {% else %}
+                    <a class="da-icon-button" href="{{ login_url }}" aria-label="Sign in to like this post" title="{{ post.num_likes }} likes"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M7 10v10H4V10h3Zm0 0 4-8c1.1 0 2 .9 2 2v3h5.5a2 2 0 0 1 1.96 2.39l-1.1 6A2 2 0 0 1 17.4 17H7"/></svg></a>
+                    <a class="da-icon-button" href="{{ login_url }}" aria-label="Sign in to comment" title="Sign in to comment"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 3v-5.5A7.5 7.5 0 0 1 10.5 4h2A7.5 7.5 0 0 1 20 11.5Z"/></svg></a>
+                    {% endif %}
+                    {% if request.user == post.author or request.user.is_staff %}<a href="{% url 'community:post_delete' post.pk %}" class="da-icon-button da-delete-button" data-delete-url="{% url 'community:post_delete' post.pk %}" aria-label="Delete post" title="Delete post"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4-6v6M9 7V4h6v3m-9 0 1 13h8l1-13"/></svg></a>{% endif %}
+                </div>
+                <noscript><p><a href="{{ post.get_absolute_url }}">More details and comments</a></p></noscript>
+                <!-- Inert until cloned into the details dialog; Django still escapes all text. -->
+                <template id="da-post-detail-template-{{ post.pk }}">
+                    <p>{{ post.caption }}</p>
+                </template>
+            </article>
+            {% empty %}<p class="da-empty">No posts yet. Share your first hiking moment.</p>{% endfor %}
+        </div>
+        <div class="da-back-row"><a class="da-back-link" href="{% url 'community:reviews' %}">BACK</a></div>
+        <p class="da-status" role="status" data-feedback hidden></p>
+        <noscript><p class="da-muted">Use the page links to create posts, add comments or view details.</p></noscript>
+    </div>
+
+    <!-- Community-specific dialogs: the base has no knowledge of these controls. -->
+    <dialog class="da-dialog" id="da-new-post" aria-labelledby="da-new-post-title">
+        <div class="da-modal-panel">
+            <button type="button" class="da-close" data-close-dialog aria-label="Close new post form">Close</button>
+            <h3 id="da-new-post-title">Create Post</h3>
+            {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'community:post_create' %}" enctype="multipart/form-data" class="da-form da-form-green">
+                {% csrf_token %}{{ post_form.non_field_errors }}
+                <div class="da-field"><label for="{{ post_form.caption.id_for_label }}">Caption</label>{{ post_form.caption }}{{ post_form.caption.errors }}</div>
+                <div class="da-field"><label for="{{ post_form.image.id_for_label }}">Your Photo (Optional)</label>{{ post_form.image }}{{ post_form.image.errors }}<p class="da-field-help">Only add a photo if you choose to. JPEG, PNG or WebP, maximum 5 MB and 20 megapixels.</p></div>
+                <div class="da-form-actions"><button type="submit" class="da-button da-button-green da-button-compact">Publish</button></div>
+            </form>
+            {% else %}<p><a href="{{ login_url }}">Sign in</a> to publish a post.</p>{% endif %}
+        </div>
+    </dialog>
+
+    <dialog class="da-dialog da-dialog-small" id="da-add-comment" aria-labelledby="da-add-comment-title">
+        <div class="da-modal-panel">
+            <button type="button" class="da-close" data-close-dialog aria-label="Close comment form">Close</button>
+            <h3 id="da-add-comment-title">Add Comment</h3>
+            <form method="post" action="{% url 'community:comment_create' 0 %}" class="da-form" data-comment-form>
+                {% csrf_token %}{{ comment_form.non_field_errors }}
+                <div class="da-field"><label class="da-sr-only" for="{{ comment_form.text.id_for_label }}">Comment</label>{{ comment_form.text }}{{ comment_form.text.errors }}</div>
+                <div class="da-form-actions"><button type="submit" class="da-button da-button-yellow da-button-compact">Add Comment</button></div>
+            </form>
+        </div>
+    </dialog>
+
+    <dialog class="da-dialog da-dialog-wide da-details-dialog" id="da-post-details" aria-labelledby="da-details-heading"><div class="da-modal-panel da-details-panel" data-details-target></div></dialog>
+
+    <dialog class="da-dialog da-dialog-small" id="da-delete-post" aria-labelledby="da-delete-title">
+        <div class="da-modal-panel">
+            <button type="button" class="da-close" data-close-dialog aria-label="Cancel deletion">Cancel</button>
+            <h3 id="da-delete-title">Delete post?</h3>
+            <p class="da-muted">This permanently removes the post, its comments and its likes.</p>
+            <form method="post" action="{% url 'community:post_delete' 0 %}" class="da-form" data-delete-form>{% csrf_token %}<input type="hidden" name="confirm" value="yes"><div class="da-form-actions"><button type="button" class="da-button da-button-secondary da-button-compact" data-close-dialog autofocus>Cancel</button><button type="submit" class="da-button da-button-danger da-button-compact">Delete</button></div></form>
+        </div>
+    </dialog>
+</section>
+{% endblock %}

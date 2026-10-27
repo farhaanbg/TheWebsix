@@ -1,0 +1,29 @@
+{% extends "community/base.html" %}
+{% block title %}Delete Post | Dina Arobi Hikes{% endblock %}
+{% block content %}
+<section class="da-page">
+  <div class="da-container da-form-container">
+    <div class="da-form-panel">
+      <h2>Delete Post</h2>
+      <p class="da-delete-warning">Are you sure you want to delete this post?</p>
+      <p class="da-muted">This action cannot be undone. The comments and likes associated with this post will also be removed.</p>
+      <div class="da-delete-preview">
+        {% if post.image %}<img src="{{ post.image.url }}" alt="Post to delete" class="da-delete-image">{% endif %}
+        <p class="da-preserve-lines">{{ post.caption }}</p>
+      </div>
+      <form method="post" class="da-form">
+        {% csrf_token %}
+        <div class="da-field da-confirm-field">
+          {{ form.confirm }}
+          <label for="{{ form.confirm.id_for_label }}">{{ form.confirm.label }}</label>
+        </div>
+        {% if form.confirm.errors %}<div class="da-field-errors">{{ form.confirm.errors }}</div>{% endif %}
+        <div class="da-form-actions">
+          <a href="{% url 'community:post_detail' post.pk %}" class="da-text-link">Cancel</a>
+          <button type="submit" class="da-button da-button-danger da-button-compact">Delete Post</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

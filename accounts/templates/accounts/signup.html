@@ -1,0 +1,161 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Account – TheWebsix</title>
+
+    <link rel="stylesheet" href="{% static 'accounts/css/style.css' %}">
+</head>
+
+<body>
+
+    <div class="signup-container">
+
+        <!-- LEFT SIDE: SIGN UP FORM -->
+        <div class="signup-form-side">
+
+            <h2>Create Your Account</h2>
+
+            <!-- Django messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="error">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Form errors -->
+            {% if form.errors %}
+                <ul class="error">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <form method="POST" class="input-box-form">
+
+                {% csrf_token %}
+
+                <!-- Full Name -->
+                <div class="input-box">
+                    <input
+                        type="text"
+                        name="full_name"
+                        value="{{ form.full_name.value|default_if_none:'' }}"
+                        placeholder="Full Name"
+                        required
+                    >
+                </div>
+
+                <!-- Username -->
+                <div class="input-box">
+                    <input
+                        type="text"
+                        name="username"
+                        value="{{ form.username.value|default_if_none:'' }}"
+                        placeholder="Username"
+                        required
+                    >
+                </div>
+
+                <!-- Email -->
+                <div class="input-box">
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ form.email.value|default_if_none:'' }}"
+                        placeholder="Email"
+                        required
+                    >
+                </div>
+
+                <!-- Password -->
+                <div class="input-box">
+
+                    <input
+                        type="password"
+                        name="password1"
+                        placeholder="Password"
+                        required
+                    >
+
+                    <p class="password-rules">
+                        Password must be at least 8 characters and should
+                        include uppercase, lowercase, and a number.
+                    </p>
+
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="input-box">
+
+                    <input
+                        type="password"
+                        name="password2"
+                        placeholder="Confirm Password"
+                        required
+                    >
+
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-primary">
+                    Sign Up
+                </button>
+
+            </form>
+
+            <p class="login-link">
+                Already have an account?
+                <a href="{% url 'accounts:login' %}">Log in</a>
+            </p>
+
+        </div>
+
+
+        <!-- RIGHT SIDE: INFORMATION -->
+        <div class="signup-info-side">
+
+            <div class="signup-info-content">
+
+                <h2>Join the Adventure</h2>
+
+                <p>
+                    Sign up, discover new trails and experience
+                    the beauty of Mauritius with us!
+                </p>
+
+                <!--
+                    There is no homepage yet, so this button is
+                    intentionally not linked to another app.
+                -->
+                <a href="#" class="btn-secondary">
+                    Browse as Guest
+                </a>
+
+            </div>
+
+
+            <!-- Mountain illustration -->
+            <img
+                src="{% static 'accounts/images/mountain.png' %}"
+                alt="Mountain illustration"
+                class="mountain-illustration"
+            >
+
+        </div>
+
+    </div>
+
+</body>
+</html>

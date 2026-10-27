@@ -1,0 +1,1103 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ profile_user.get_full_name|default:profile_user.username }} - Trail Explorer Dashboard</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-canvas: #f4f6f3;
+      --sidebar-bg: #e2e7df;
+      --forest-dark: #12281d;
+      --forest-primary: #2d5a43;
+      --forest-accent: #3a7356;
+      --amber-gold: #ebb82d;
+      --text-main: #1d2b23;
+      --text-muted: #5d6e64;
+      --card-bg: #ffffff;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+    }
+
+    .font-outfit { font-family: 'Outfit', sans-serif; }
+
+    .tab-btn.active {
+      color: var(--forest-primary);
+      font-weight: 700;
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--forest-primary);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .moment-card {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+
+    .moment-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px -10px rgba(18, 40, 29, 0.15);
+    }
+
+    @keyframes slideInUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .animate-toast {
+      animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen antialiased flex flex-col md:flex-row">
+
+  <!-- Sidebar Navigation -->
+  <aside class="w-full md:w-64 bg-[#e5ebe3] border-r border-[#d2dcd0] flex-shrink-0 flex flex-col justify-between p-5 min-h-screen">
+
+    <div>
+
+      <div class="flex items-center gap-3 px-3 py-2 mb-6">
+        <div class="w-9 h-9 rounded-xl bg-[#2d5a43] flex items-center justify-center text-white shadow-md">
+          <i data-lucide="trees" class="w-5 h-5"></i>
+        </div>
+
+        <div>
+          <span class="font-outfit text-lg font-bold tracking-tight text-[#12281d] block leading-tight">
+            DINA AROBI HIKES MAURITIUS
+          </span>
+          <span class="text-[10px] tracking-widest font-semibold uppercase text-[#5d6e64]">
+            Trail Community
+          </span>
+        </div>
+      </div>
+
+
+      <nav class="space-y-1">
+
+        <!-- Dashboard -->
+        <a href="{% url 'accounts:dashboard' %}"
+           class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#2d5a43] text-white font-semibold shadow-sm transition-all">
+
+          <div class="flex items-center gap-3">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span class="text-sm">Dashboard</span>
+          </div>
+
+          <span class="bg-[#ebb82d] text-[#12281d] text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full">
+            Active
+          </span>
+        </a>
+
+
+        <!-- My Bookings -->
+        <a href="#"
+           onclick="switchTab('bookings'); return false;"
+           class="flex items-center justify-between px-3 py-2.5 rounded-lg text-[#32453a] hover:bg-[#d5ded2] transition-colors font-medium">
+
+          <div class="flex items-center gap-3">
+            <i data-lucide="calendar-check" class="w-4 h-4"></i>
+            <span class="text-sm">My Bookings</span>
+          </div>
+
+          <span class="w-2 h-2 rounded-full bg-[#2d5a43]"></span>
+        </a>
+
+
+        <!-- Settings -->
+        <a href="#"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#32453a] hover:bg-[#d5ded2] transition-colors font-medium">
+
+          <i data-lucide="settings" class="w-4 h-4"></i>
+          <span class="text-sm">Settings</span>
+
+        </a>
+
+      </nav>
+
+
+      <div class="my-6 border-t border-[#d0dad0]"></div>
+
+
+      <div class="space-y-1">
+
+        <div class="px-3 text-[11px] font-bold uppercase tracking-wider text-[#697c70] mb-2">
+          Manage Account
+        </div>
+
+
+        <button type="button"
+                onclick="enableEditAccount()"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-[#32453a] hover:bg-[#d5ded2] transition-colors text-sm font-medium w-full">
+
+          <i data-lucide="user-cog" class="w-4 h-4"></i>
+          <span>Modify Account</span>
+
+        </button>
+
+
+        <!-- Change Password -->
+        <a href="{% url 'accounts:password_change' %}"
+           class="flex items-center gap-3 px-3 py-2 rounded-lg text-[#32453a] hover:bg-[#d5ded2] transition-colors text-sm font-medium">
+
+          <i data-lucide="key-round" class="w-4 h-4"></i>
+          <span>Change Password</span>
+
+        </a>
+
+
+        <!-- Delete Account -->
+        <a href="{% url 'accounts:delete_account' %}"
+           class="flex items-center gap-3 px-3 py-2 rounded-lg text-[#c23d3d] hover:bg-[#fce8e8] transition-colors text-sm font-semibold">
+
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+          <span>Delete Account</span>
+
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <!-- Logout -->
+    <div class="pt-6 border-t border-[#d0dad0]">
+
+      <a href="{% url 'accounts:logout' %}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#2d5a43] hover:bg-[#d5ded2] transition-colors font-semibold text-sm">
+
+        <i data-lucide="log-out" class="w-4 h-4"></i>
+        <span>Log out</span>
+
+      </a>
+
+    </div>
+
+  </aside>
+
+
+  <!-- Main Content Area -->
+  <main class="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl mx-auto w-full">
+
+
+    <!-- Profile Banner -->
+    <section class="bg-white rounded-2xl shadow-sm border border-[#e1e7e2] overflow-hidden mb-8">
+
+      <div class="h-48 sm:h-64 relative bg-slate-800">
+
+        {% if profile_user.profile.cover_image %}
+
+          <img
+            src="{{ profile_user.profile.cover_image.url }}"
+            alt="Cover"
+            class="w-full h-full object-cover"
+          />
+
+        {% else %}
+
+          <div class="w-full h-full bg-slate-700 flex items-center justify-center text-slate-400">
+            No cover image uploaded
+          </div>
+
+        {% endif %}
+
+      </div>
+
+
+      <div class="px-6 pb-6 pt-0 relative flex flex-col md:flex-row md:items-end justify-between gap-6">
+
+        <div class="flex flex-col sm:flex-row items-center sm:items-end gap-5 -mt-16 sm:-mt-20">
+
+          <div class="relative">
+
+            {% if profile_user.profile.avatar %}
+
+              <img
+                src="{{ profile_user.profile.avatar.url }}"
+                alt="{{ profile_user.username }}"
+                class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-white object-cover shadow-lg bg-slate-100"
+              />
+
+            {% else %}
+
+              <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-white bg-slate-200 flex items-center justify-center text-2xl font-bold text-slate-600 shadow-lg">
+                {{ profile_user.username|slice:":1"|upper }}
+              </div>
+
+            {% endif %}
+
+            <span class="absolute bottom-2 right-2 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></span>
+
+          </div>
+
+
+          <div class="text-center sm:text-left">
+
+  <!-- Normal account information -->
+  <div id="accountDisplay">
+    <h1 class="font-outfit text-2xl sm:text-3xl font-bold text-[#12281d] flex items-center justify-center sm:justify-start gap-2">
+      {{ full_name }}
+      <i data-lucide="badge-check" class="w-5 h-5 text-[#2d5a43] fill-[#2d5a43]/10"></i>
+    </h1>
+
+    {% if profile_user.profile.handle %}
+      <p class="text-[#5d6e64] font-medium text-sm sm:text-base">
+        {{ profile_user.profile.handle }}
+      </p>
+    {% else %}
+      <p class="text-[#5d6e64] font-medium text-sm sm:text-base">
+        @{{ profile_user.username }}
+      </p>
+    {% endif %}
+  </div>
+
+
+  <!-- Edit account form -->
+<div id="accountEdit" class="hidden">
+
+  <form method="POST"
+        action="{% url 'accounts:edit_account' %}"
+        enctype="multipart/form-data"
+        class="space-y-3">
+
+    {% csrf_token %}
+
+    <input
+      type="text"
+      name="full_name"
+      value="{{ full_name }}"
+      placeholder="Full name"
+      required
+      class="border border-[#d5ded2] rounded-lg px-3 py-2 w-full text-sm">
+
+    <input
+      type="text"
+      name="username"
+      value="{{ profile_user.username }}"
+      placeholder="Username"
+      required
+      class="border border-[#d5ded2] rounded-lg px-3 py-2 w-full text-sm">
+
+    <input
+      type="email"
+      name="email"
+      value="{{ profile_user.email }}"
+      placeholder="Email"
+      required
+      class="border border-[#d5ded2] rounded-lg px-3 py-2 w-full text-sm">
+
+    <!-- Profile picture -->
+    <div>
+      <label class="block text-sm font-semibold text-[#32453a] mb-1">
+        Profile Picture
+      </label>
+
+      <input
+        type="file"
+        name="avatar"
+        accept="image/*"
+        class="border border-[#d5ded2] rounded-lg px-3 py-2 w-full text-sm">
+    </div>
+
+    <!-- Cover picture -->
+    <div>
+      <label class="block text-sm font-semibold text-[#32453a] mb-1">
+        Cover Picture
+      </label>
+
+      <input
+        type="file"
+        name="cover_image"
+        accept="image/*"
+        class="border border-[#d5ded2] rounded-lg px-3 py-2 w-full text-sm">
+    </div>
+
+    <div class="flex gap-2 justify-center sm:justify-start">
+
+      <button
+        type="submit"
+        class="px-4 py-2 rounded-lg bg-[#2d5a43] text-white text-sm font-semibold hover:bg-[#234936]">
+        Save
+      </button>
+
+      <button
+        type="button"
+        onclick="cancelEditAccount()"
+        class="px-4 py-2 rounded-lg bg-[#e1e7e2] text-[#32453a] text-sm font-semibold hover:bg-[#d5ded2]">
+        Cancel
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
+
+        </div>
+
+
+        <div class="flex flex-wrap items-center justify-center md:justify-end gap-6 sm:gap-8 pt-2">
+
+          <div class="text-center sm:text-left border-r border-[#e1e7e2] pr-6">
+
+            <div class="font-outfit text-2xl sm:text-3xl font-extrabold text-[#12281d]">
+              {{ moments_count }}
+            </div>
+
+            <div class="text-xs font-bold uppercase tracking-wider text-[#5d6e64]">
+              Moments
+            </div>
+
+          </div>
+
+
+          <div class="text-center sm:text-left border-r border-[#e1e7e2] pr-6">
+
+            <div class="font-outfit text-2xl sm:text-3xl font-extrabold text-[#12281d]">
+              {{ total_likes }}
+            </div>
+
+            <div class="text-xs font-bold uppercase tracking-wider text-[#5d6e64]">
+              Likes
+            </div>
+
+          </div>
+
+
+          <button
+            onclick="openNewMomentModal()"
+            class="bg-[#2d5a43] hover:bg-[#1f4230] text-white font-semibold text-sm px-5 py-3 rounded-xl shadow-md transition-all flex items-center gap-2 group active:scale-95">
+
+            <i data-lucide="plus-circle"
+               class="w-4 h-4 text-[#ebb82d] group-hover:rotate-90 transition-transform">
+            </i>
+
+            <span>Add New Moment</span>
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Tab Navigation Header -->
+    <div class="flex items-center justify-between border-b border-[#d2dcd0] pb-2 mb-6">
+
+      <div class="flex items-center gap-8">
+
+        <button
+          id="btnTabMoments"
+          onclick="switchTab('moments')"
+          class="tab-btn active text-lg font-outfit font-semibold py-2 flex items-center gap-2">
+
+          <span>MY MOMENTS</span>
+
+          <span class="bg-[#2d5a43]/10 text-[#2d5a43] text-xs font-extrabold px-2 py-0.5 rounded-full">
+            {{ moments_count }}
+          </span>
+
+        </button>
+
+
+        <button
+          id="btnTabBookings"
+          onclick="switchTab('bookings')"
+          class="tab-btn text-lg font-outfit font-semibold text-[#5d6e64] hover:text-[#12281d] py-2 flex items-center gap-2">
+
+          <span>MY BOOKINGS</span>
+
+          <span class="bg-amber-100 text-amber-800 text-xs font-extrabold px-2 py-0.5 rounded-full">
+            {{ bookings_count }}
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- TAB 1: MOMENTS GRID -->
+    <div id="viewMoments" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      {% for moment in moments %}
+
+      <article class="moment-card bg-white rounded-2xl overflow-hidden border border-[#e1e7e2] shadow-sm flex flex-col">
+
+        <div class="moment-image-wrapper h-56 bg-slate-100 relative">
+
+          <img
+            src="{{ moment.image.url }}"
+            alt="{{ moment.title }}"
+            class="moment-image w-full h-full object-cover"
+          />
+
+          <span class="absolute top-3 left-3 bg-black/50 backdrop-blur-md text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+
+            <i data-lucide="tag" class="w-3 h-3 text-[#ebb82d]"></i>
+
+            {{ moment.tag }}
+
+          </span>
+          {% if moment.user == request.user %}
+          <button
+            type="button"
+            onclick="deleteMoment('{{ moment.id }}')"
+            class="absolute top-3 right-3 z-10 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-red-700">
+
+            Delete
+
+          </button>
+        {% endif %}
+
+        </div>
+
+
+        <div class="p-5 flex-1 flex flex-col justify-between">
+
+          <div>
+
+            <h3 class="font-outfit text-lg font-bold text-[#12281d] mb-1">
+              {{ moment.title }}
+            </h3>
+
+            <p class="text-xs text-[#5d6e64] line-clamp-2">
+              {{ moment.caption }}
+            </p>
+
+          </div>
+
+
+          <div class="flex items-center justify-between pt-4 mt-4 border-t border-[#f0f4f1] text-xs font-semibold text-[#5d6e64]">
+
+            <button
+              onclick="toggleLike(this)"
+              class="flex items-center gap-1.5 hover:text-rose-600 transition-colors">
+
+              <i data-lucide="heart"
+                 class="w-4 h-4 text-rose-500 fill-rose-500">
+              </i>
+
+              <span>
+                {{ moment.likes_count }} likes
+              </span>
+
+            </button>
+
+
+            <button
+              onclick="openCommentsModal('{{ moment.id }}')"
+              class="flex items-center gap-1.5 hover:text-[#2d5a43] transition-colors">
+
+              <i data-lucide="message-circle"
+                 class="w-4 h-4 text-[#2d5a43]">
+              </i>
+
+              <span id="comment-count-{{ moment.id }}">
+                {{ moment.comments.count }} comments
+              </span>
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </article>
+
+
+      {% empty %}
+
+      <div class="col-span-full py-12 text-center text-[#5d6e64]">
+
+        <p class="text-sm">
+          No moments posted yet.
+        </p>
+
+      </div>
+
+      {% endfor %}
+
+    </div>
+
+
+    <!-- TAB 2: BOOKINGS VIEW -->
+    <div id="viewBookings" class="hidden space-y-4">
+
+      {% for booking in bookings %}
+
+      <div class="bg-white rounded-2xl p-5 border border-[#e1e7e2] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+
+        <div class="flex items-center gap-4">
+
+          <div class="w-14 h-14 rounded-xl {% if booking.status == 'CONFIRMED' %}bg-emerald-50 text-[#2d5a43]{% else %}bg-amber-50 text-amber-700{% endif %} flex items-center justify-center flex-shrink-0">
+
+            <i data-lucide="compass" class="w-7 h-7"></i>
+
+          </div>
+
+
+          <div>
+
+            <div class="flex items-center gap-2">
+
+              <span class="{% if booking.status == 'CONFIRMED' %}bg-emerald-100 text-emerald-800{% else %}bg-amber-100 text-amber-800{% endif %} text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md">
+
+                {{ booking.get_status_display }}
+
+              </span>
+
+              <span class="text-xs text-[#5d6e64]">
+                #{{ booking.reference_code }}
+              </span>
+
+            </div>
+
+
+            <h4 class="font-outfit text-lg font-bold text-[#12281d] mt-0.5">
+              {{ booking.title }}
+            </h4>
+
+
+            <p class="text-xs text-[#5d6e64]">
+              Date: {{ booking.date_str }} • Guide: {{ booking.guide_name }}
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      {% empty %}
+
+      <div class="py-12 text-center text-[#5d6e64]">
+
+        <p class="text-sm">
+          No bookings found.
+        </p>
+
+      </div>
+
+      {% endfor %}
+
+    </div>
+
+  </main>
+
+
+  <!-- Upload New Moment Modal -->
+  <div id="momentModal"
+       class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-[#e1e7e2]">
+
+      <div class="flex items-center justify-between border-b border-[#f0f4f1] pb-4 mb-4">
+
+        <h3 class="font-outfit text-xl font-bold text-[#12281d]">
+          Share a Hiking Moment
+        </h3>
+
+        <button
+          onclick="closeNewMomentModal()"
+          class="text-[#5d6e64] hover:text-[#12281d]">
+
+          <i data-lucide="x" class="w-5 h-5"></i>
+
+        </button>
+
+      </div>
+
+
+      <form
+        method="POST"
+        action="{% url 'accounts:dashboard' %}"
+        enctype="multipart/form-data"
+        class="space-y-4">
+
+        {% csrf_token %}
+
+
+        <div>
+
+          <label class="block text-xs font-bold uppercase text-[#5d6e64] mb-1">
+            Title
+          </label>
+
+          <input
+            type="text"
+            name="title"
+            required
+            class="w-full px-3.5 py-2.5 bg-[#f4f6f3] border border-[#d2dcd0] rounded-xl text-sm focus:outline-none focus:border-[#2d5a43]"
+          />
+
+        </div>
+
+
+        <div>
+
+          <label class="block text-xs font-bold uppercase text-[#5d6e64] mb-1">
+            Select Photo
+          </label>
+
+          <input
+            type="file"
+            name="image_file"
+            accept="image/*"
+            required
+            class="w-full px-3.5 py-2 bg-[#f4f6f3] border border-[#d2dcd0] rounded-xl text-sm text-[#5d6e64] file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#2d5a43] file:text-white hover:file:bg-[#1f4230]"
+          />
+
+        </div>
+
+
+        <div>
+
+          <label class="block text-xs font-bold uppercase text-[#5d6e64] mb-1">
+            Caption
+          </label>
+
+          <textarea
+            name="caption"
+            rows="3"
+            class="w-full px-3.5 py-2.5 bg-[#f4f6f3] border border-[#d2dcd0] rounded-xl text-sm focus:outline-none focus:border-[#2d5a43]">
+          </textarea>
+
+        </div>
+
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+
+          <button
+            type="button"
+            onclick="closeNewMomentModal()"
+            class="px-4 py-2.5 text-xs font-semibold text-[#5d6e64] hover:bg-slate-100 rounded-xl">
+
+            Cancel
+
+          </button>
+
+
+          <button
+            type="submit"
+            class="px-5 py-2.5 bg-[#2d5a43] hover:bg-[#1f4230] text-white text-xs font-bold rounded-xl shadow-md transition-all">
+
+            Post Moment
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- Comments Window / Modal -->
+  <div id="commentsModal"
+       class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#e1e7e2] flex flex-col max-h-[80vh]">
+
+      <div class="flex items-center justify-between border-b border-[#f0f4f1] pb-4 mb-4">
+
+        <div>
+
+          <h3 class="font-outfit text-xl font-bold text-[#12281d]">
+            Comments
+          </h3>
+
+          <p id="commentsMomentTitle"
+             class="text-xs text-[#5d6e64]">
+          </p>
+
+        </div>
+
+
+        <button
+          onclick="closeCommentsModal()"
+          class="text-[#5d6e64] hover:text-[#12281d]">
+
+          <i data-lucide="x" class="w-5 h-5"></i>
+
+        </button>
+
+      </div>
+
+
+      <div id="commentsList"
+           class="overflow-y-auto space-y-3 flex-1 pr-1">
+
+        <!-- Comments will be populated dynamically -->
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- Toast Container -->
+  <div id="toastContainer"
+       class="fixed bottom-5 right-5 z-50 pointer-events-none">
+  </div>
+
+
+  <script>
+
+    lucide.createIcons();
+
+
+    function switchTab(tab) {
+
+      const btnMoments = document.getElementById('btnTabMoments');
+      const btnBookings = document.getElementById('btnTabBookings');
+
+      const viewMoments = document.getElementById('viewMoments');
+      const viewBookings = document.getElementById('viewBookings');
+
+
+      if (tab === 'moments') {
+
+        btnMoments.classList.add('active', 'text-[#12281d]');
+        btnBookings.classList.remove('active', 'text-[#12281d]');
+
+        viewMoments.classList.remove('hidden');
+        viewBookings.classList.add('hidden');
+
+      } else {
+
+        btnBookings.classList.add('active', 'text-[#12281d]');
+        btnMoments.classList.remove('active', 'text-[#12281d]');
+
+        viewBookings.classList.remove('hidden');
+        viewMoments.classList.add('hidden');
+
+      }
+
+    }
+
+
+    function openNewMomentModal() {
+
+      document
+        .getElementById('momentModal')
+        .classList.remove('hidden');
+
+    }
+
+
+    function closeNewMomentModal() {
+
+      document
+        .getElementById('momentModal')
+        .classList.add('hidden');
+
+    }
+
+
+    function openCommentsModal(momentId) {
+
+      const modal =
+        document.getElementById('commentsModal');
+
+      const container =
+        document.getElementById('commentsList');
+
+      const titleSpan =
+        document.getElementById('commentsMomentTitle');
+
+
+      container.innerHTML =
+        '<div class="text-center py-6 text-xs text-[#5d6e64]">Loading comments...</div>';
+
+      modal.classList.remove('hidden');
+
+
+      fetch("{% url 'accounts:get_comments' 0 %}".replace('0', momentId))
+
+        .then(response => response.json())
+
+        .then(data => {
+
+          titleSpan.textContent =
+            data.moment_title;
+
+          container.innerHTML = '';
+
+
+          if (data.comments.length === 0) {
+
+            container.innerHTML =
+              '<div class="text-center py-6 text-xs text-[#5d6e64]">No comments on this moment yet.</div>';
+
+            return;
+
+          }
+
+
+          data.comments.forEach(comment => {
+
+            const commentDiv =
+              document.createElement('div');
+
+            commentDiv.id =
+              `comment-item-${comment.id}`;
+
+            commentDiv.className =
+              'p-3 bg-[#f4f6f3] rounded-xl flex items-start justify-between gap-3 border border-[#e1e7e2]';
+
+
+            commentDiv.innerHTML = `
+
+              <div>
+
+                <div class="flex items-center gap-2">
+
+                  <span class="text-xs font-bold text-[#12281d]">
+                    ${comment.user}
+                  </span>
+
+                  <span class="text-[10px] text-[#5d6e64]">
+                    ${comment.created_at}
+                  </span>
+
+                </div>
+
+                <p class="text-xs text-[#1d2b23] mt-1">
+                  ${comment.text}
+                </p>
+
+              </div>
+
+
+              ${comment.can_delete ? `
+
+                <button
+                  onclick="deleteComment(${comment.id}, ${momentId})"
+                  class="text-rose-500 hover:text-rose-700 p-1">
+
+                  <i data-lucide="trash-2"
+                     class="w-4 h-4">
+                  </i>
+
+                </button>
+
+              ` : ''}
+
+            `;
+
+
+            container.appendChild(commentDiv);
+
+          });
+
+
+          lucide.createIcons();
+
+        });
+
+    }
+
+
+    function closeCommentsModal() {
+
+      document
+        .getElementById('commentsModal')
+        .classList.add('hidden');
+
+    }
+
+
+    function deleteComment(commentId, momentId) {
+
+      if (
+        !confirm(
+          'Are you sure you want to delete this comment?'
+        )
+      ) {
+        return;
+      }
+
+
+      fetch(
+        "{% url 'accounts:delete_comment' 0 %}"
+          .replace('0', commentId),
+        {
+          method: 'POST',
+
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+          }
+        }
+      )
+
+      .then(response => response.json())
+
+      .then(data => {
+
+        if (data.success) {
+
+          const item =
+            document.getElementById(
+              `comment-item-${commentId}`
+            );
+
+          if (item) {
+            item.remove();
+          }
+
+
+          showNotification(
+            'Comment deleted'
+          );
+
+
+          const countSpan =
+            document.getElementById(
+              `comment-count-${momentId}`
+            );
+
+
+          if (countSpan) {
+
+            let current =
+              parseInt(countSpan.textContent);
+
+            if (
+              !isNaN(current)
+              && current > 0
+            ) {
+
+              countSpan.textContent =
+                `${current - 1} comments`;
+
+            }
+
+          }
+
+        }
+
+      });
+
+    }
+
+
+    function showNotification(msg) {
+
+      const container =
+        document.getElementById(
+          'toastContainer'
+        );
+
+
+      const toast =
+        document.createElement('div');
+
+
+      toast.className =
+        'bg-[#12281d] text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl border border-white/10 mb-2 flex items-center gap-2 pointer-events-auto animate-toast';
+
+
+      toast.innerHTML = `
+        <i data-lucide="check-circle"
+           class="w-4 h-4 text-[#ebb82d]">
+        </i>
+
+        <span>${msg}</span>
+      `;
+
+
+      container.appendChild(toast);
+
+      lucide.createIcons();
+
+
+      setTimeout(() => {
+
+        toast.style.opacity = '0';
+
+        toast.style.transition =
+          'opacity 0.3s ease';
+
+
+        setTimeout(
+          () => toast.remove(),
+          300
+        );
+
+      }, 3000);
+
+
+    }
+
+    function enableEditAccount() {
+    document.getElementById("accountDisplay").classList.add("hidden");
+    document.getElementById("accountEdit").classList.remove("hidden");
+}
+
+    function cancelEditAccount() {
+        document.getElementById("accountEdit").classList.add("hidden");
+        document.getElementById("accountDisplay").classList.remove("hidden");
+    }
+
+    
+    function deleteMoment(momentId) {
+
+        if (!confirm("Are you sure you want to delete this moment?")) {
+            return;
+        }
+
+        const form = document.createElement("form");
+
+        form.method = "POST";
+        form.action = "{% url 'accounts:delete_moment' 0 %}".replace("0", momentId);
+
+        const csrfToken = document.querySelector(
+            '[name=csrfmiddlewaretoken]'
+        ).value;
+
+        const csrfInput = document.createElement("input");
+
+        csrfInput.type = "hidden";
+        csrfInput.name = "csrfmiddlewaretoken";
+        csrfInput.value = csrfToken;
+
+        form.appendChild(csrfInput);
+
+        document.body.appendChild(form);
+
+        form.submit();
+    }
+
+  </script>
+
+</body>
+</html>
+```
+

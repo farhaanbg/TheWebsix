@@ -1,0 +1,90 @@
+{% extends "community/base.html" %}
+{% load static %}
+{% block title %}Reviews | Dina Arobi Hikes{% endblock %}
+{% block content %}
+{# Like house_list.html: inheritance, variables and a for loop; only the design differs. #}
+<section class="da-page" data-da-page="reviews" aria-labelledby="da-reviews-title">
+    <div class="da-container da-fade-in">
+        <div class="da-review-hero">
+            <h2 class="da-heading" id="da-reviews-title">YOUR FEEDBACK MATTERS</h2>
+            <p>If our words are not convincing enough, there are our reviews that will guide you through your decisions</p>
+        </div>
+        <div class="da-review-buttons">
+            <a href="{% url 'community:review_create' %}" class="da-button da-button-yellow" data-show-dialog="da-leave-review">Leave Review</a>
+            <button type="button" class="da-button da-button-yellow" data-show-dialog="da-all-reviews">View Review</button>
+        </div>
+        <div class="da-review-summary">
+            <h3>Recent Reviews</h3>
+            <div class="da-divider"></div>
+            <div class="da-review-stats">
+                <div>Total Reviews: <strong>{{ num_reviews }}</strong></div>
+                <div>Average Rating: <strong>{{ average_rating|floatformat:1 }}</strong> *****</div>
+            </div>
+        </div>
+        <div class="da-review-grid">
+            {% for review in review_list|slice:":3" %}
+            <article class="da-review-card">
+                <div class="da-review-card-main">
+                    <span class="da-review-avatar" aria-hidden="true"></span>
+                    <h4>{{ review.name }}</h4>
+                    <span aria-label="{{ review.rating }} out of 5 stars">*****</span>
+                    <p class="da-review-excerpt">{{ review.text }}</p>
+                </div>
+                <time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:'d/m/Y' }}</time>
+            </article>
+            {% empty %}
+            <p class="da-empty">No reviews yet. Be the first to leave your feedback.</p>
+            {% endfor %}
+        </div>
+        <p class="da-status" role="status" data-feedback hidden></p>
+        <noscript><p class="da-muted"><a href="{% url 'community:review_create' %}">Leave a review</a>. All reviews are shown below when JavaScript is disabled.</p></noscript>
+    </div>
+
+    <!-- Review-specific dialogs live here, never in base.html. -->
+    <dialog class="da-dialog" id="da-leave-review" aria-labelledby="da-leave-review-title">
+        <div class="da-modal-panel">
+            <button type="button" class="da-close" data-close-dialog aria-label="Close review form">Close</button>
+            <h3 id="da-leave-review-title">Leave Feedback</h3>
+            {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'community:review_create' %}" class="da-form">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <fieldset class="da-rating-field">
+                    <legend>Rating</legend>
+                    <div class="da-rating-picker" data-rating-picker>
+                        {% for star in star_values %}
+                        <label class="da-rating-choice">
+                            <input class="da-sr-only" type="radio" name="rating" value="{{ star }}" required{% if selected_rating == star %} checked{% endif %}>
+                            <span class="da-sr-only">{{ star }} out of 5 stars</span>
+                            {% if star <= selected_rating %}*{% else %}.{% endif %}
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {{ form.rating.errors }}
+                </fieldset>
+                <div class="da-field"><label for="{{ form.name.id_for_label }}">Name</label>{{ form.name }}{{ form.name.errors }}</div>
+                <div class="da-field"><label for="{{ form.text.id_for_label }}">Feedback</label>{{ form.text }}{{ form.text.errors }}</div>
+                <div class="da-form-actions"><button type="submit" class="da-button da-button-yellow da-button-compact">Submit</button></div>
+            </form>
+            {% else %}
+            <p><a href="{{ login_url }}">Sign in</a> to leave a review.</p>
+            {% endif %}
+        </div>
+    </dialog>
+
+    <dialog class="da-dialog da-dialog-wide" id="da-all-reviews" aria-labelledby="da-all-reviews-title">
+        <div class="da-modal-panel da-list-panel">
+            <div class="da-modal-heading"><h3 id="da-all-reviews-title">All Reviews</h3><button type="button" class="da-icon-button" data-close-dialog aria-label="Close all reviews">Close</button></div>
+            <div class="da-review-list">
+                {% for review in review_list %}
+                <article class="da-review-list-item">
+                    <div class="da-review-list-meta"><div><span class="da-small-avatar" aria-hidden="true"></span><strong>{{ review.name }}</strong></div><time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:'d/m/Y' }}</time></div>
+                    <span aria-label="{{ review.rating }} out of 5 stars">*****</span>
+                    <p class="da-preserve-lines">{{ review.text }}</p>
+                </article>
+                {% empty %}<p class="da-muted">No reviews yet.</p>{% endfor %}
+            </div>
+        </div>
+    </dialog>
+</section>
+{% endblock %}

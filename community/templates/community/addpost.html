@@ -1,0 +1,31 @@
+{% extends "community/base.html" %}
+{% block title %}Create Post | Dina Arobi Hikes{% endblock %}
+{% block content %}
+<section class="da-page">
+  <div class="da-container da-form-container">
+    <div class="da-form-panel">
+      <h2>Create Post</h2>
+      <p class="da-muted">Share a hiking moment with the community.</p>
+      <form method="post" enctype="multipart/form-data" class="da-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="da-form-errors">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="da-field">
+          <label for="{{ form.caption.id_for_label }}">Caption</label>
+          {{ form.caption }}
+          {% if form.caption.errors %}<div class="da-field-errors">{{ form.caption.errors }}</div>{% endif %}
+        </div>
+        <div class="da-field">
+          <label for="{{ form.image.id_for_label }}">Photo (Optional)</label>
+          {{ form.image }}
+          {% if form.image.errors %}<div class="da-field-errors">{{ form.image.errors }}</div>{% endif %}
+          <p class="da-field-help">JPEG, PNG or WebP. Maximum 5 MB.</p>
+        </div>
+        <div class="da-form-actions">
+          <a href="{% url 'community:community' %}" class="da-text-link">Cancel</a>
+          <button type="submit" class="da-button da-button-green da-button-compact">Publish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
