@@ -2,7 +2,7 @@
 
 ListView / DetailView display records.
 Function-based views process GET/POST, cleaned_data, save and redirect.
-JavaScript only controls the display; it does not store application data.
+JavaScript provides responsive interactions.
 """
 from urllib.parse import urlencode
 
@@ -10,7 +10,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.db.models import Avg, Count
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect
+from django.http import (HttpResponseBadRequest, HttpResponseForbidden,
+                         HttpResponseRedirect)
 from django.shortcuts import get_object_or_404, render, resolve_url
 from django.urls import reverse
 from django.views import generic
@@ -152,6 +153,8 @@ def add_comment(request, pk):
             comment = Comment(post=post, author=request.user,
                               text=form.cleaned_data['text'])
             comment.save()
+            if request.POST.get('next') == 'community':
+                return HttpResponseRedirect(reverse('community:community'))
             return HttpResponseRedirect(post.get_absolute_url())
     else:
         form = AddCommentModelForm()
