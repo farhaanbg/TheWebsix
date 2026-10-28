@@ -41,12 +41,10 @@
                 {% endblock navbar %}
             </nav>
             <div class="da-navbar-tools">
-                {% url 'community:login' as fallback_login %}
-                {% url 'accounts:profile' as fallback_profile %}
                 {% if request.user.is_authenticated %}
-                    {% firstof community_nav.profile community_nav.home fallback_profile as profile_url %}
+                    {% url 'accounts:account_detail' as profile_url %}
                 {% else %}
-                    {% firstof login_url fallback_login as profile_url %}
+                    {% url 'accounts:login' as profile_url %}
                 {% endif %}
                 <a class="da-navbar-avatar" href="{{ profile_url }}" aria-label="{% if request.user.is_authenticated %}Account{% else %}Sign in{% endif %}">{% if request.user.is_authenticated %}{{ request.user.get_username|first|upper }}{% else %}M{% endif %}</a>
             </div>
