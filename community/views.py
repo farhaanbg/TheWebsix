@@ -178,6 +178,8 @@ def like_post(request, pk):
         PostLike.objects.get_or_create(post=post, user=request.user)
     else:
         PostLike.objects.filter(post=post, user=request.user).delete()
+    if request.POST.get('next') == 'detail':
+        return HttpResponseRedirect(post.get_absolute_url())
     return HttpResponseRedirect(reverse('community:community'))
 
 
