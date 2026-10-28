@@ -25,7 +25,7 @@
             {% for review in review_list|slice:":3" %}
             <article class="da-review-card">
                 <div class="da-review-card-main">
-                    <span class="da-review-avatar" aria-hidden="true"></span>
+                    <span class="da-review-avatar" aria-hidden="true">{{ review.name|first|upper }}</span>
                     <h4>{{ review.name }}</h4>
                     <span aria-label="{{ review.rating }} out of 5 stars">*****</span>
                     <p class="da-review-excerpt">{{ review.text }}</p>
@@ -78,7 +78,7 @@
             <div class="da-review-list">
                 {% for review in review_list %}
                 <article class="da-review-list-item">
-                    <div class="da-review-list-meta"><div><span class="da-small-avatar" aria-hidden="true"></span><strong>{{ review.name }}</strong></div><time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:'d/m/Y' }}</time></div>
+                    <div class="da-review-list-meta"><div><span class="da-small-avatar" aria-hidden="true">{{ review.name|first|upper }}</span><strong>{{ review.name }}</strong></div><time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:'d/m/Y' }}</time></div>
                     <span aria-label="{{ review.rating }} out of 5 stars">*****</span>
                     <p class="da-preserve-lines">{{ review.text }}</p>
                 </article>
