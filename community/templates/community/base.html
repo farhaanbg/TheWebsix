@@ -33,7 +33,7 @@
                     </span>
                     {% endif %}
                     </li>
-                    <li>{% if community_nav.hikes %}<a class="da-nav-link" href="{{ community_nav.hikes }}">Hikes</a>{% else %}<span class="da-nav-link" aria-disabled="true" title="Connect your existing Hikes URL">Hikes</span>{% endif %}</li>
+                    <li><a class="da-nav-link{% if active_class == 'hikes' %} active{% endif %}" href="{% url 'hikes:list' %}"{% if active_class == 'hikes' %} aria-current="page"{% endif %}>Hikes</a></li>
                     <li>{% if community_nav.bookings %}<a class="da-nav-link" href="{{ community_nav.bookings }}">My Bookings</a>{% else %}<span class="da-nav-link" aria-disabled="true" title="Connect your existing Bookings URL">My Bookings</span>{% endif %}</li>
                     <li><a class="da-nav-link{% if active_class == 'community' %} active{% endif %}" href="{% url 'community:community' %}"{% if active_class == 'community' %} aria-current="page"{% endif %}>Community</a></li>
                     <li><a class="da-nav-link{% if active_class == 'reviews' %} active{% endif %}" href="{% url 'community:reviews' %}"{% if active_class == 'reviews' %} aria-current="page"{% endif %}>Reviews</a></li>

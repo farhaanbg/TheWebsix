@@ -1,0 +1,108 @@
+/* Hike listing and basic details. Shared navigation stays in community/base.html. */
+.hikes-page { background: #0b1811; color: #eceee5; flex: 1; }
+.hikes-page, .hikes-page * { box-sizing: border-box; }
+.hikes-container { width: min(1216px, calc(100% - 48px)); margin: 0 auto; }
+.hikes-page h1, .hikes-page h2, .hike-card-footer strong, .hike-detail-price, .hikes-stats dd { font-family: Impact, 'Arial Narrow', sans-serif; font-weight: 400; }
+.hikes-page h1 { font-size: clamp(38px, 4vw, 58px); line-height: 1.1; text-transform: uppercase; margin: 12px 0; }
+.hikes-intro { background: #132119; padding: 44px 0 40px; border-bottom: 1px solid #2b3b2e; }
+.hikes-eyebrow { color: #edce35; font: 12px/1.5 monospace; letter-spacing: 3px; text-transform: uppercase; }
+.hikes-lead { color: #a4b9a8; max-width: 620px; line-height: 1.7; margin: 14px 0 26px; }
+.hikes-stats { display: flex; gap: 40px; margin: 0; }
+.hikes-stats div { display: flex; flex-direction: column-reverse; }
+.hikes-stats dt { font: 10px/1.8 monospace; text-transform: uppercase; letter-spacing: 1px; color: #a4b9a8; }
+.hikes-stats dd { margin: 0; font-size: 25px; }
+.hikes-filter-section { padding: 20px 0; border-bottom: 1px solid #293b2d; }
+.hikes-filter input:not([type=checkbox]), .hikes-filter select, .hikes-sort select { width: 100%; min-height: 40px; background: #203024; color: #e0e8df; border: 1px solid #374c3c; border-radius: 6px; padding: 9px 12px; font: inherit; color-scheme: dark; }
+.hikes-filter input::placeholder { color: #a4b9a8; }
+.hikes-filter #id_q { min-height: 46px; }
+.hikes-filter-row { display: flex; align-items: end; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+.hikes-field { flex: 1; min-width: 135px; }
+.hikes-field label, .hikes-difficulties legend { display: block; margin-bottom: 6px; font-size: 12px; color: #b2c5b6; }
+.hikes-difficulties { border: 0; padding: 0; margin: 0; display: flex; gap: 6px; }
+.hikes-checkbox { position: relative; cursor: pointer; }
+.hikes-checkbox input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.hikes-checkbox span { display: block; padding: 9px 10px; border: 1px solid #374c3c; border-radius: 5px; background: #203024; color: #c0d2c2; font-size: 13px; }
+.hikes-checkbox input:checked + span { background: #2b723c; border-color: #63c77d; color: #fff; }
+.hikes-checkbox input:focus-visible + span, .hikes-page :focus-visible { outline: 2px solid #edce35; outline-offset: 4px; }
+.hikes-button { display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 4px; padding: 11px 15px; min-height: 40px; background: #359d50; color: #fff; text-decoration: none; font: 700 13px/1.4 Arial, sans-serif; cursor: pointer; white-space: nowrap; }
+.hikes-button:hover { background: #287c3e; }
+.hikes-reset, .hikes-back { color: #bad1bd; text-decoration: underline; text-underline-offset: 4px; }
+.hikes-reset { padding: 10px 0; font-size: 13px; }
+.hikes-errors { color: #ffb6a8; font-size: 14px; }
+.hikes-results { padding-top: 30px; padding-bottom: 56px; }
+.hikes-results-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; color: #afc4b3; font: 12px/1.6 monospace; }
+.hikes-results-bar p { margin: 0; }
+.hikes-results-bar p span { color: #ef9b8d; }
+.hikes-sort { display: flex; gap: 8px; align-items: center; }
+.hikes-sort select { width: auto; min-height: 32px; padding: 5px 9px; }
+.hikes-sort-button { background: transparent; color: #d6e2d6; border: 1px solid #4c6652; border-radius: 4px; padding: 6px 10px; cursor: pointer; }
+.hikes-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.hike-card { background: #142219; border: 1px solid #2c3d30; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+.hike-card-photo { height: 205px; position: relative; background: #203b29; }
+.hike-card-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hike-card-photo::after { content: ''; position: absolute; inset: 50% 0 0; background: linear-gradient(transparent, #142219bb); pointer-events: none; }
+.hike-photo-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #254d35, #142b20); color: #b2cbb5; font: 11px monospace; text-transform: uppercase; letter-spacing: 2px; }
+.hike-photo-placeholder span:first-child { font-size: 75px; line-height: 1; color: #74ad80; }
+.hike-difficulty { display: inline-block; border: 1px solid; border-radius: 4px; padding: 4px 9px; font: 11px/1.4 monospace; letter-spacing: .4px; }
+.hike-card-photo .hike-difficulty { position: absolute; top: 12px; right: 12px; z-index: 1; }
+.hike-difficulty-easy { color: #9ae1ab; background: #193e26; border-color: #367a48; }
+.hike-difficulty-moderate { color: #f2d846; background: #36331a; border-color: #746426; }
+.hike-difficulty-hard { color: #ffc182; background: #40291a; border-color: #8c542a; }
+.hike-difficulty-expert { color: #ffa4c4; background: #3a1c2a; border-color: #85405b; }
+.hike-card-date { position: absolute; bottom: 12px; left: 12px; z-index: 1; background: #0a1d16e8; padding: 6px 9px; border-radius: 3px; }
+.hike-card-date span { display: block; color: #b5cbb9; font: 10px monospace; }
+.hike-card-date strong { font: 14px Impact, 'Arial Narrow', sans-serif; }
+.hike-full-banner { position: absolute; z-index: 2; top: 0; width: 100%; text-align: center; background: #702c2be8; color: #ffe4de; padding: 8px; font: 12px Impact, sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+.hike-card-full .hike-card-photo .hike-difficulty { top: 44px; }
+.hike-card-full img { filter: brightness(.7); }
+.hike-card-body { padding: 18px 16px; flex: 1; display: flex; flex-direction: column; }
+.hike-card h2 { text-transform: uppercase; font-size: 21px; line-height: 1.25; margin: 0 0 5px; overflow-wrap: anywhere; }
+.hike-card h2 a { text-decoration: none; color: #eceee5; }
+.hike-card h2 a:hover { color: #a5e6ac; }
+.hike-location { color: #b2c5b6; font-size: 12px; margin: 0 0 12px; }
+.hike-metrics { display: flex; flex-wrap: wrap; gap: 5px 10px; list-style: none; padding: 0; margin: 0 0 12px; color: #adc6b1; font: 10px/1.6 monospace; text-transform: uppercase; }
+.hike-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 22px; }
+.hike-tags span { border-radius: 20px; background: #213427; padding: 3px 8px; color: #b4cbb8; font: 10px/1.5 monospace; }
+.hike-availability { margin-top: auto; padding-top: 12px; }
+.hike-availability meter { display: block; appearance: none; width: 100%; height: 6px; background: #233529; border: none; border-radius: 5px; overflow: hidden; }
+.hike-availability meter::-webkit-meter-bar { border: 0; background: #233529; height: 6px; }
+.hike-availability meter::-webkit-meter-optimum-value { background: #3cab57; }
+.hike-availability meter::-moz-meter-bar { background: #3cab57; }
+.hike-availability-low meter::-webkit-meter-optimum-value { background: #e5cc36; }
+.hike-availability-low meter::-moz-meter-bar { background: #e5cc36; }
+.hike-card-full meter, .hike-card-full meter::-webkit-meter-bar { background: #a93e32; }
+.hike-availability p { font: 10px/1.6 monospace; color: #b3c9b8; margin: 6px 0 16px; }
+.hike-card-full .hike-availability p { color: #ffab99; }
+.hike-card-footer { border-top: 1px solid #304134; padding-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.hike-card-footer span { display: block; color: #b3c9b8; font: 9px monospace; text-transform: uppercase; }
+.hike-card-footer strong { font-size: 25px; color: #f0ce30; }
+.hike-card-footer .hikes-button { font-size: 11px; min-height: 34px; padding: 8px 12px; }
+.hikes-empty { grid-column: 1 / -1; text-align: center; padding: 60px 24px; border: 1px dashed #3b5841; border-radius: 12px; background: #132219; }
+.hikes-empty > span { font-size: 56px; color: #63af73; }
+.hikes-empty h2 { font-size: 30px; margin: 12px 0; text-transform: uppercase; }
+.hikes-empty p { color: #b2c5b6; }
+.hikes-sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip-path: inset(50%); white-space: nowrap; }
+.hike-detail { padding-top: 30px; padding-bottom: 60px; }
+.hikes-back { display: inline-block; margin-bottom: 28px; }
+.hike-detail-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 32px; }
+.hike-detail-image { width: 100%; max-height: 420px; object-fit: cover; border-radius: 10px; }
+.hike-detail h2 { margin-top: 32px; text-transform: uppercase; }
+.hike-description { color: #b9cfbe; overflow-wrap: anywhere; }
+.hike-detail-summary { align-self: start; background: #142219; border: 1px solid #304134; border-radius: 10px; padding: 24px; }
+.hike-detail-summary .hikes-eyebrow { font-size: 10px; letter-spacing: 1px; }
+.hike-detail-price { color: #edce35; font-size: 40px; margin: 0 0 20px; }
+.hike-detail-summary dl div { display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px solid #304134; padding: 10px 0; font-size: 14px; }
+.hike-detail-summary dt { color: #b9cfbe; }
+.hike-detail-summary dd { margin: 0; text-align: right; }
+.hike-booking-note { color: #b9cfbe; font-size: 13px; border-top: 1px solid #304134; padding-top: 16px; }
+@media (max-width: 1100px) { .hikes-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 850px) { .hikes-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hike-detail-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+    .hikes-container { width: calc(100% - 32px); }
+    .hikes-intro { padding: 32px 0; }
+    .hikes-grid { grid-template-columns: 1fr; }
+    .hikes-results-bar { align-items: start; flex-direction: column; }
+    .hikes-difficulties { width: 100%; }
+    .hike-card-photo { height: 230px; }
+    .hikes-stats { gap: 30px; }
+}

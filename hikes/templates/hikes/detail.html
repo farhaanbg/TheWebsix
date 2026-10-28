@@ -1,0 +1,34 @@
+{% extends "community/base.html" %}
+{% load static %}
+{% block title %}{{ hike.title }} | Dina Arobi{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'hikes/css/hikes.css' %}">{% endblock %}
+{% block content %}
+<div class="hikes-page"><article class="hikes-container hike-detail">
+    <a class="hikes-back" href="{% url 'hikes:list' %}">← Back to explore</a>
+    <div class="hike-detail-grid">
+        <div>
+            {% if hike.image %}<img class="hike-detail-image" src="{{ hike.image.url }}" alt="{{ hike.title }}">{% endif %}
+            <p class="hikes-eyebrow">{{ hike.location }}{% if hike.district %} · {{ hike.district }}{% endif %}</p>
+            <h1>{{ hike.title }}</h1>
+            <span class="hike-difficulty hike-difficulty-{{ hike.difficulty }}">{{ hike.get_difficulty_display }}</span>
+            <h2>About this hike</h2>
+            <div class="hike-description">{{ hike.description|default:"More details will be shared soon."|linebreaks }}</div>
+            <div class="hike-tags">{% for tag in hike.tag_list %}<span>{{ tag }}</span>{% endfor %}</div>
+        </div>
+        <aside class="hike-detail-summary" aria-label="Hike information">
+            <p class="hikes-eyebrow">Price per person</p><p class="hike-detail-price">Rs {{ hike.price|floatformat:"-2" }}</p>
+            <dl>
+                <div><dt>Date</dt><dd>{{ hike.date|date:"D, j M Y" }}</dd></div>
+                {% if hike.departure_time %}<div><dt>Departure</dt><dd>{{ hike.departure_time|time:"H:i" }}</dd></div>{% endif %}
+                {% if hike.guide %}<div><dt>Guide</dt><dd>{{ hike.guide }}</dd></div>{% endif %}
+                <div><dt>Distance</dt><dd>{{ hike.distance_km }} km</dd></div>
+                <div><dt>Elevation</dt><dd>{{ hike.elevation_m }} m</dd></div>
+                <div><dt>Duration</dt><dd>{{ hike.duration_display }}</dd></div>
+                <div><dt>Group size</dt><dd>{{ hike.capacity }} people</dd></div>
+            </dl>
+            <p>{% if hike.spots_remaining %}{{ hike.spots_remaining }} of {{ hike.capacity }} spots remaining{% else %}<strong>Fully booked</strong>{% endif %}</p>
+            <p class="hike-booking-note">Online booking is not available yet.</p>
+        </aside>
+    </div>
+</article></div>
+{% endblock %}

@@ -22,7 +22,7 @@
 
         <div class="home-actions">
             <a class="home-button home-button-primary"
-               href="#home-hikes">
+               href="{% url 'hikes:list' %}">
                 Explore Hikes
             </a>
 
@@ -40,13 +40,13 @@
         Find your next hike
     </h2>
 
-    <form class="home-filter">
+    <form class="home-filter" method="get" action="{% url 'hikes:list' %}">
         <div class="home-filter-field">
             <label for="hike-location">Location</label>
             <input
                 type="text"
                 id="hike-location"
-                name="location"
+                name="q"
                 placeholder="Enter a location"
                 maxlength="100">
         </div>
@@ -81,8 +81,7 @@
         </div>
 
         <button class="home-search-button"
-                type="button"
-                disabled>
+                type="submit">
             Search Hikes
         </button>
     </form>

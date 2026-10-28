@@ -133,4 +133,5 @@ MAILERS = {
 
 DINA_AROBI_NAV_URLS = {
     "home": "/",
+    "hikes": "/hikes/",
 }

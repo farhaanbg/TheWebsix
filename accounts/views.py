@@ -7,7 +7,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeDoneView
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from .models import UserProfile
 from .forms import EditAccountForm, ProfileForm
 from .forms import SignupForm, EditAccountForm
@@ -100,14 +100,14 @@ def dashboard_view(request):
     # Get user's moments
     moments = Moment.objects.filter(
         user=user
-    )
+    ).annotate(likes_count=Count("likes"))
 
     # Get user's bookings
     bookings = Booking.objects.filter(
         user=user
     )
 
-    # Calculate total likes
+    # Count the users who liked each moment, then total those counts.
     total_likes = moments.aggregate(
         Sum("likes_count")
     )["likes_count__sum"] or 0
