@@ -1,7 +1,7 @@
 # TheWebsix
 
 University hiking website project using Django, SQLite and Django's default admin.
-The repository currently contains the starter project and four empty apps.
+The project has four apps: accounts, hikes, bookings and community.
 
 ## First-time setup (Windows PowerShell)
 
@@ -46,6 +46,22 @@ to leave it.
 Inside each app, `models.py` defines data, `views.py` handles requests, and
 `admin.py` registers models with Django's admin. Coordinate changes to shared
 files such as `thewebsix/settings.py` and `thewebsix/urls.py` with the team.
+
+## Managing hikes
+
+After pulling the hike pages, run `python manage.py migrate`. Sign in to
+`/admin/` with your local superuser and open **Hikes > Add hike**. Enter the
+trail information, date, price, difficulty, duration (in minutes), capacity
+and reserved spots. You can also upload a photo, add a guide name, description
+and comma-separated tags. A placeholder appears when no photo is uploaded.
+
+Saved hikes appear at `/hikes/`, with search, location/date/price/difficulty
+filters and sorting. Each card opens a basic detail page. Fully booked hikes
+remain visible. Reserved spots are managed manually for now; these pages do
+not create bookings or connect to the separate account booking model yet.
+
+No sample hikes are added automatically. Use the admin to create your own
+records. Run `python manage.py test hikes` to check the hike features.
 
 ## Before starting a new task
 
