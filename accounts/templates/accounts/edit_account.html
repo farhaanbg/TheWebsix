@@ -1,0 +1,14 @@
+<label for="{{ form.username.id_for_label }}">Username</label>
+{{ form.username }}
+
+{% if form.username.errors %}
+    <p class="error">{{ form.username.errors.0 }}</p>
+{% endif %}
+
+
+<label for="{{ form.email.id_for_label }}">Email</label>
+{{ form.email }}
+
+{% if form.email.errors %}
+    <p class="error">{{ form.email.errors.0 }}</p>
+{% endif %}

@@ -1,7 +1,9 @@
+
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import UserProfile
+
 
 class SignupForm(UserCreationForm):
 
@@ -20,15 +22,23 @@ class SignupForm(UserCreationForm):
             'password2'
         ]
 
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip()
+
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(
+                "This email address is already in use."
+            )
+
+        return email
+
     def save(self, commit=True):
         user = super().save(commit=False)
 
         name = self.cleaned_data['full_name'].strip().split(" ", 1)
 
         user.first_name = name[0]
-
-        if len(name) > 1:
-            user.last_name = name[1]
+        user.last_name = name[1] if len(name) > 1 else ""
 
         if commit:
             user.save()
@@ -51,15 +61,28 @@ class EditAccountForm(forms.ModelForm):
             'email'
         ]
 
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip()
+
+        users = User.objects.filter(email__iexact=email)
+
+        if self.instance and self.instance.pk:
+            users = users.exclude(pk=self.instance.pk)
+
+        if users.exists():
+            raise forms.ValidationError(
+                "This email address is already in use."
+            )
+
+        return email
+
     def save(self, commit=True):
         user = super().save(commit=False)
 
         name = self.cleaned_data['full_name'].strip().split(" ", 1)
 
         user.first_name = name[0]
-
-        if len(name) > 1:
-            user.last_name = name[1]
+        user.last_name = name[1] if len(name) > 1 else ""
 
         if commit:
             user.save()
@@ -68,6 +91,7 @@ class EditAccountForm(forms.ModelForm):
 
 
 class ProfileForm(forms.ModelForm):
+
     class Meta:
         model = UserProfile
         fields = ['avatar', 'cover_image']
