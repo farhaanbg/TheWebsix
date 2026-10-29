@@ -10,7 +10,8 @@ from django.contrib.auth.views import PasswordChangeDoneView
 from django.db.models import Count
 from .forms import SignupForm, EditAccountForm, ProfileForm
 from .models import Moment, Comment, Booking, UserProfile
-
+from community.models import Post, PostLike, Comment as CommunityComment
+from django.utils import timezone
 # -------------------------
 # SIGN UP
 # -------------------------
@@ -46,7 +47,7 @@ def login_view(request):
         try:
             user = User.objects.get(email=username_or_email)
             username = user.username
-        except User.DoesNotExist:
+        except (User.DoesNotExist, User.MultipleObjectsReturned):
             username = username_or_email
 
         user = authenticate(
@@ -64,50 +65,28 @@ def login_view(request):
     return render(request, "accounts/login.html")
 
 
+
+
 # =========================
 # ACCOUNT DASHBOARD
 # =========================
 
 @login_required
 def dashboard_view(request):
-
     user = request.user
 
-    # Add a new moment
-    if request.method == "POST":
+    # Get the user's Community posts
+    posts = Post.objects.filter(
+        author=user
+    ).annotate(
+        likes_count=Count("likes", distinct=True)
+    ).order_by("-created_at", "-pk")
 
-        title = request.POST.get("title")
-        image_file = request.FILES.get("image_file")
-        caption = request.POST.get("caption")
-        tag = request.POST.get("tag", "Hike")
+    # Get the user's bookings
+    bookings = Booking.objects.filter(user=user)
 
-        if title and image_file:
-
-            Moment.objects.create(
-                user=user,
-                title=title,
-                image=image_file,
-                caption=caption,
-                tag=tag
-            )
-
-        return redirect("accounts:dashboard")
-
-
-    # Get user's moments
-    moments = Moment.objects.filter(
-        user=user
-    ).annotate(likes_count=Count("likes"))
-
-    # Get user's bookings
-    bookings = Booking.objects.filter(
-        user=user
-    )
-
-    # Count the users who liked each moment, then total those counts.
-    total_likes = moments.aggregate(
-        total=Count('likes')
-    )['total']
+    # Count all likes on the user's posts
+    total_likes = sum(post.likes_count for post in posts)
 
     # Get full name
     full_name = (
@@ -120,9 +99,9 @@ def dashboard_view(request):
     context = {
         "profile_user": user,
         "full_name": full_name,
-        "moments": moments,
+        "moments": posts,
         "bookings": bookings,
-        "moments_count": moments.count(),
+        "moments_count": posts.count(),
         "bookings_count": bookings.count(),
         "total_likes": total_likes,
     }
@@ -138,30 +117,23 @@ def dashboard_view(request):
 # GET COMMENTS
 # =========================
 
+
 @login_required
 def get_comments(request, moment_id):
+    post = get_object_or_404(Post, id=moment_id)
 
-    moment = get_object_or_404(
-        Moment,
-        id=moment_id
-    )
-
-    comments = moment.comments.select_related(
-        "user"
-    ).all()
+    comments = post.comments.select_related("author").all()
 
     comments_data = [
         {
             "id": c.id,
-            "user": c.user.get_full_name()
-                    or c.user.username,
+            "user": c.author.get_full_name().strip()
+                    or c.author.username,
             "text": c.text,
-            "created_at": c.created_at.strftime(
-                "%b %d, %Y %H:%M"
-            ),
+            "created_at": timezone.localtime(c.created_at).strftime("%b %d, %Y %H:%M"),
             "can_delete": (
-                c.user == request.user
-                or moment.user == request.user
+                c.author == request.user
+                or post.author == request.user
             )
         }
         for c in comments
@@ -169,23 +141,23 @@ def get_comments(request, moment_id):
 
     return JsonResponse({
         "comments": comments_data,
-        "moment_title": moment.title
+        "moment_title": post.caption
     })
 
 # =========================
 # ADD COMMENT
 # =========================
 
+
 @login_required
 def add_comment(request, moment_id):
-
     if request.method != "POST":
         return JsonResponse(
             {"success": False, "error": "POST request required."},
             status=405
         )
 
-    moment = get_object_or_404(Moment, id=moment_id)
+    post = get_object_or_404(Post, id=moment_id)
     text = request.POST.get("text", "").strip()
 
     if not text:
@@ -194,9 +166,9 @@ def add_comment(request, moment_id):
             status=400
         )
 
-    comment = Comment.objects.create(
-        moment=moment,
-        user=request.user,
+    comment = CommunityComment.objects.create(
+        post=post,
+        author=request.user,
         text=text
     )
 
@@ -204,53 +176,52 @@ def add_comment(request, moment_id):
         "success": True,
         "comment": {
             "id": comment.id,
-            "user": comment.user.get_full_name() or comment.user.username,
+            "user": comment.author.get_full_name().strip()
+                    or comment.author.username,
             "text": comment.text,
             "created_at": comment.created_at.strftime("%b %d, %Y %H:%M"),
             "can_delete": True
         },
-        "total_comments": moment.comments.count()
+        "total_comments": post.comments.count()
     })
+
 
 # =========================
 # DELETE COMMENT
 # =========================
 
+
 @login_required
 def delete_comment(request, comment_id):
-
-    if request.method == "POST":
-
-        comment = get_object_or_404(
-            Comment,
-            id=comment_id
-        )
-
-        if (
-            comment.user == request.user
-            or comment.moment.user == request.user
-        ):
-
-            comment.delete()
-
-            return JsonResponse({
-                "success": True
-            })
-
+    if request.method != "POST":
         return JsonResponse(
-            {
-                "success": False,
-                "error": "Unauthorized"
-            },
-            status=403
+            {"success": False, "error": "POST request required."},
+            status=405
         )
+
+    comment = get_object_or_404(
+        CommunityComment.objects.select_related("post", "author"),
+        id=comment_id
+    )
+
+    # Only the comment author or post owner can delete it
+    if (
+        comment.author == request.user
+        or comment.post.author == request.user
+    ):
+        post_id = comment.post_id
+        comment.delete()
+
+        return JsonResponse({
+            "success": True,
+            "total_comments": Post.objects.get(id=post_id).comments.count()
+        })
 
     return JsonResponse(
-        {
-            "success": False
-        },
-        status=400
+        {"success": False, "error": "Unauthorized"},
+        status=403
     )
+
 
 
 @login_required
@@ -284,25 +255,25 @@ def edit_account(request):
 
 
 
+
 @login_required
 def delete_moment(request, moment_id):
-
     if request.method == "POST":
-
-        moment = get_object_or_404(
-            Moment,
+        post = get_object_or_404(
+            Post,
             id=moment_id,
-            user=request.user
+            author=request.user
         )
 
-        moment.delete()
+        post.delete()
 
         messages.success(
             request,
-            "Moment deleted successfully."
+            "Post deleted successfully."
         )
 
     return redirect("accounts:account_detail")
+
 
 # -------------------------
 # LOGOUT
@@ -382,6 +353,7 @@ def delete_account(request):
     )
 
 
+
 @login_required
 def toggle_like(request, moment_id):
     if request.method != "POST":
@@ -390,16 +362,25 @@ def toggle_like(request, moment_id):
             status=405
         )
 
-    moment = get_object_or_404(Moment, id=moment_id)
+    # The ID now refers to a Community Post
+    post = get_object_or_404(Post, id=moment_id)
 
-    if moment.likes.filter(id=request.user.id).exists():
-        moment.likes.remove(request.user)
+    like = PostLike.objects.filter(
+        post=post,
+        user=request.user
+    )
+
+    if like.exists():
+        like.delete()
         liked = False
     else:
-        moment.likes.add(request.user)
+        PostLike.objects.create(
+            post=post,
+            user=request.user
+        )
         liked = True
 
     return JsonResponse({
         "liked": liked,
-        "total_likes": moment.likes.count()
+        "total_likes": post.likes.count()
     })

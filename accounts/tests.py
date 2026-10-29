@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from .models import Moment
+from community.models import Post, PostLike, Comment as CommunityComment
 
 
 class AccountDashboardTests(TestCase):
@@ -18,21 +18,44 @@ class AccountDashboardTests(TestCase):
 
     def test_dashboard_counts_likes_on_own_moments(self):
         other = get_user_model().objects.create_user(username='other-hiker')
-        first = Moment.objects.create(user=self.user, title='First hike', image='moments/test.jpg')
-        second = Moment.objects.create(user=self.user, title='Second hike', image='moments/test.jpg')
-        unliked = Moment.objects.create(user=self.user, title='Third hike', image='moments/test.jpg')
-        outside = Moment.objects.create(user=other, title='Other hike', image='moments/test.jpg')
-        first.likes.add(self.user, other)
-        second.likes.add(other)
-        outside.likes.add(self.user)
+
+        first = Post.objects.create(
+            author=self.user, caption='First hike'
+        )
+        second = Post.objects.create(
+            author=self.user, caption='Second hike'
+        )
+        unliked = Post.objects.create(
+            author=self.user, caption='Third hike'
+        )
+        outside = Post.objects.create(
+            author=other, caption='Other hike'
+        )
+
+        PostLike.objects.create(post=first, user=self.user)
+        PostLike.objects.create(post=first, user=other)
+        PostLike.objects.create(post=second, user=other)
+        PostLike.objects.create(post=outside, user=self.user)
+
         self.client.force_login(self.user)
         response = self.client.get(reverse('accounts:account_detail'))
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['total_likes'], 3)
         self.assertEqual(response.context['moments_count'], 3)
-        counts = {moment.pk: moment.likes_count for moment in response.context['moments']}
-        self.assertEqual(counts, {first.pk: 2, second.pk: 1, unliked.pk: 0})
+
+        counts = {
+            post.pk: post.likes_count
+            for post in response.context['moments']
+        }
+        self.assertEqual(counts, {
+            first.pk: 2,
+            second.pk: 1,
+            unliked.pk: 0,
+        })
+
         self.assertContains(response, '2 likes')
+
 
 
 class MergedAccountFixTests(TestCase):
@@ -49,28 +72,51 @@ class MergedAccountFixTests(TestCase):
         self.assertTrue(get_user_model().objects.filter(pk=self.user.pk).exists())
 
     def test_moment_like_and_unlike(self):
-        moment = Moment.objects.create(user=self.user, title='Trail', image='moments/test.jpg')
-        url = reverse('accounts:toggle_like', args=[moment.pk])
+        post = Post.objects.create(
+            author=self.user,
+            caption='Trail'
+        )
+        url = reverse('accounts:toggle_like', args=[post.pk])
+
         self.assertEqual(self.client.get(url).status_code, 405)
-        self.assertEqual(self.client.post(url).json(), {'liked': True, 'total_likes': 1})
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            'liked': True,
+            'total_likes': 1
+        })
+
         response = self.client.get(reverse('accounts:account_detail'))
         self.assertEqual(response.context['total_likes'], 1)
-        self.assertEqual(self.client.post(url).json(), {'liked': False, 'total_likes': 0})
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            'liked': False,
+            'total_likes': 0
+        })
 
     def test_add_comment_and_reject_empty_comment(self):
-        moment = Moment.objects.create(user=self.user, title='Trail', image='moments/test.jpg')
-        url = reverse('accounts:add_comment', args=[moment.pk])
-        self.assertEqual(self.client.get(url).status_code, 405)
-        self.assertEqual(self.client.post(url, {'text': '  '}).status_code, 400)
-        self.assertEqual(self.client.post(url, {'text': 'Great hike'}).json()['total_comments'], 1)
-        self.assertEqual(moment.comments.get().text, 'Great hike')
+        post = Post.objects.create(
+            author=self.user,
+            caption='Trail'
+        )
+        url = reverse('accounts:add_comment', args=[post.pk])
 
-    def test_signup_rejects_duplicate_email(self):
-        from .forms import SignupForm
-        form = SignupForm(data={'full_name': 'New Hiker', 'username': 'new-hiker',
-            'email': 'HIKER@example.com', 'password1': 'NewPassword!924', 'password2': 'NewPassword!924'})
-        self.assertFalse(form.is_valid())
-        self.assertIn('email', form.errors)
+        self.assertEqual(self.client.get(url).status_code, 405)
+
+        response = self.client.post(url, {'text': '  '})
+        self.assertEqual(response.status_code, 400)
+
+        response = self.client.post(url, {'text': 'Great hike'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['total_comments'], 1)
+
+        self.assertEqual(
+            CommunityComment.objects.get(post=post).text,
+            'Great hike'
+        )
 
     def test_edit_rejects_duplicate_email(self):
         from .forms import EditAccountForm

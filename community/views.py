@@ -21,7 +21,7 @@ from .forms import (AddCommentModelForm, AddPostModelForm, AddReviewForm,
                     DeletePostForm, LikePostForm)
 from .models import Comment, Post, PostLike, Review
 
-LOGIN_URL = getattr(settings, 'DINA_AROBI_LOGIN_URL', 'community:login')
+LOGIN_URL = 'accounts:login'
 
 
 def page_context(request, active_class):
