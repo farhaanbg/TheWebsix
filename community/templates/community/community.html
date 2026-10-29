@@ -21,9 +21,9 @@
                     </div>
                 </div>
                 <div class="da-post-card">
-                    {% if post.image %}<a href="{{ post.get_absolute_url }}" aria-label="View post details"><img src="{{ post.image.url }}" alt="Photo shared by {{ post.author_name }}" loading="lazy"></a>{% else %}<p class="da-post-card-caption">{{ post.caption }}</p>{% endif %}
+                    {% if post.image %}<a href="{{ post.get_absolute_url }}" aria-label="View post details"><img src="{{ post.image.url }}" alt="Photo shared by {{ post.author_name }}" loading="lazy"></a>{% else %}<a class="da-post-card-empty" href="{{ post.get_absolute_url }}" aria-label="View post details"></a>{% endif %}
                 </div>
-                {% if post.image %}<p class="da-post-caption">{{ post.caption }}</p>{% endif %}
+                <p class="da-post-caption">{{ post.caption }}</p>
                 <div class="da-post-actions">
                     {% if request.user.is_authenticated %}
                     <form method="post" action="{% url 'community:post_like' post.pk %}" data-like-form>

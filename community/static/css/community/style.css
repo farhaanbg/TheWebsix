@@ -539,6 +539,18 @@
     color: var(--da-yellow);
 }
 
+.da-page .da-review-stars {
+    white-space: nowrap;
+}
+
+.da-page .da-review-stars .da-star-filled {
+    color: var(--da-yellow);
+}
+
+.da-page .da-review-stars .da-star-empty {
+    color: #6b7280;
+}
+
 .da-page .da-review-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -809,6 +821,10 @@
     height: 100%;
 }
 
+.da-page .da-post-card > a.da-post-card-empty {
+    background: var(--da-card);
+}
+
 .da-page .da-post-card > a > img {
     width: 100%;
     height: 100%;
@@ -823,19 +839,6 @@
     text-align: center;
     font-size: 14px;
     text-shadow: 0 3px 3px #0002;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-}
-
-.da-page .da-post-card-caption {
-    display: block;
-    width: 100%;
-    max-height: 100%;
-    margin: 0;
-    padding: 24px;
-    overflow-y: auto;
-    text-align: center;
-    font-size: 14px;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
@@ -1149,6 +1152,46 @@
     margin-top: 6px;
     color: #9ca3af;
     font-size: 11px;
+}
+
+.da-page .da-current-photo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.da-page .da-current-photo-label {
+    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    text-transform: uppercase;
+}
+
+.da-page .da-current-photo-image {
+    display: block;
+    width: 100%;
+    max-height: 280px;
+    border: 1px solid var(--da-border);
+    border-radius: 8px;
+    background: #000;
+    object-fit: contain;
+}
+
+.da-page .da-checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.da-page .da-checkbox-field > label {
+    margin: 0;
+    text-transform: none;
+}
+
+.da-page .da-checkbox {
+    accent-color: var(--da-green);
 }
 
 .da-page .da-form-actions {
@@ -1638,7 +1681,7 @@
 .da-page .da-detail-stats {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
     padding: 12px 20px;
     color: #fff;
 }
@@ -1646,15 +1689,17 @@
 .da-page .da-detail-stats form {
     display: flex;
     align-items: center;
+    justify-content: center;
+    width: 32px;
     margin: 0;
 }
 
 .da-page .da-detail-action {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 6px;
-    min-width: 32px;
+    width: 32px;
     height: 24px;
     padding: 0;
     border: 0;
@@ -1685,6 +1730,10 @@
 
 .da-page .da-detail-action.da-delete-button:hover {
     color: #f87171;
+}
+
+.da-page .da-detail-stats .da-delete-button {
+    margin-left: -12px;
 }
 
 .da-page .da-post-menu a {
