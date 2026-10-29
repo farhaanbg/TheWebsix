@@ -10,18 +10,21 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.db.models import Avg, Count
+from django.core.files.storage import default_storage
 from django.http import (HttpResponseBadRequest, HttpResponseForbidden,
                          HttpResponseRedirect)
 from django.shortcuts import get_object_or_404, render, resolve_url
 from django.urls import reverse
 from django.views import generic
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods, require_POST
+from django.utils.decorators import method_decorator
 
 from .forms import (AddCommentModelForm, AddPostModelForm, AddReviewForm,
-                    DeletePostForm, LikePostForm)
+                    DeletePostForm, EditPostModelForm, LikePostForm)
 from .models import Comment, Post, PostLike, Review
 
-LOGIN_URL = getattr(settings, 'DINA_AROBI_LOGIN_URL', 'community:login')
+LOGIN_URL = getattr(settings, 'DINA_AROBI_LOGIN_URL', 'accounts:login')
 
 
 def page_context(request, active_class):
@@ -36,6 +39,7 @@ def page_context(request, active_class):
     return context
 
 
+@method_decorator(never_cache, name='dispatch')
 class ReviewListView(generic.ListView):
     # Equivalent to HouseListView: model, template, list in the context.
     model = Review
@@ -59,6 +63,7 @@ class ReviewListView(generic.ListView):
         return context
 
 
+@method_decorator(never_cache, name='dispatch')
 class PostListView(generic.ListView):
     model = Post
     template_name = 'community/community.html'
@@ -86,6 +91,7 @@ class PostListView(generic.ListView):
         return context
 
 
+@method_decorator(never_cache, name='dispatch')
 class PostDetailView(generic.DetailView):
     # Like HouseDetailView; pk comes from the URL and the template receives post.
     model = Post
@@ -140,6 +146,34 @@ def add_post(request):
     context = page_context(request, 'community')
     context['form'] = form
     return render(request, 'community/addpost.html', context)
+
+
+@login_required(login_url=LOGIN_URL)
+@require_http_methods(['GET', 'POST'])
+def edit_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if post.author != request.user and not request.user.is_staff:
+        return HttpResponseForbidden('You may only edit your own posts.')
+
+    if request.method == 'POST':
+        form = EditPostModelForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            old_image_name = post.image.name
+            updated_post = form.save(commit=False)
+            if form.cleaned_data['remove_image']:
+                updated_post.image.delete(save=False)
+                updated_post.image = ''
+            updated_post.save()
+            if old_image_name and old_image_name != updated_post.image.name:
+                default_storage.delete(old_image_name)
+            return HttpResponseRedirect(post.get_absolute_url())
+    else:
+        form = EditPostModelForm(instance=post)
+
+    context = page_context(request, 'community')
+    context['form'] = form
+    context['post'] = post
+    return render(request, 'community/editpost.html', context)
 
 
 @login_required(login_url=LOGIN_URL)

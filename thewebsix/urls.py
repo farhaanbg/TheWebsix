@@ -2,10 +2,10 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
-from hikes.views import home
+
 
 urlpatterns = [
-    path('', home, name='home'),
+    path('', include('home.urls')),
     path('hikes/', include('hikes.urls')),
     path('admin/', admin.site.urls),
 

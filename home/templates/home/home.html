@@ -1,0 +1,238 @@
+{% extends "community/base.html" %}
+{% load static %}
+
+{% block title %}Home | Dina Arobi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'home/css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="home-page">
+
+    <!-- HERO -->
+    <section class="home-hero" aria-labelledby="home-heading">
+
+        <div class="home-hero-inner">
+            <div class="home-hero-content">
+
+                <p class="home-eyebrow">
+                    <span class="home-eyebrow-line" aria-hidden="true"></span>
+                    Mauritius, beyond the ordinary
+                </p>
+
+                <h2 id="home-heading" class="home-title">
+                    Explore Mauritius.
+                    <span class="home-title-accent">One trail</span>
+                    <span>at a time.</span>
+                </h2>
+
+                <p class="home-intro">
+                    From quiet coastal paths to mist-covered peaks.
+                    Find your next hike and connect with people
+                    who share your love of the outdoors.
+                </p>
+
+                <div class="home-actions">
+                    <a class="home-button home-button-primary"
+                       href="{% url 'hikes:list' %}">
+                        Explore Hikes
+                        <span class="home-button-arrow"
+                              aria-hidden="true">↗</span>
+                    </a>
+
+                    <a class="home-button home-button-secondary"
+                       href="{% url 'community:community' %}">
+                        Join the Community
+                        <span class="home-button-arrow"
+                              aria-hidden="true">→</span>
+                    </a>
+                </div>
+
+                <a class="home-scroll-link" href="#home-hikes">
+                    <span class="home-scroll-icon" aria-hidden="true">↓</span>
+                    Find a trail that suits you
+                </a>
+            </div>
+
+            <!-- Decorative caption, not a claim about a real trail. -->
+            <div class="home-landscape-note" aria-hidden="true">
+                <svg class="home-mountain-icon"
+                     viewBox="0 0 64 40"
+                     fill="none">
+                    <path d="M3 36 23 7l12 18 8-12 18 23H3Z"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linejoin="round"/>
+                    <path d="m16 17 7 5 6-6"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linejoin="round"/>
+                </svg>
+
+                <div>
+                    <span class="home-note-label">A different perspective</span>
+                    <span class="home-note-title">Take the scenic route.</span>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- SEARCH: submits to the existing hikes app. -->
+    <section class="home-search" id="home-hikes"
+             aria-labelledby="home-search-heading">
+
+        <div class="home-search-heading-row">
+            <div>
+                <p class="home-section-label">Your next adventure</p>
+                <h2 id="home-search-heading">Where will the trail take you?</h2>
+            </div>
+
+            <span class="home-search-hint">
+                Choose your filters. Find your trail.
+            </span>
+        </div>
+
+        <form class="home-filter" method="get" action="{% url 'hikes:list' %}">
+
+            <div class="home-filter-field">
+                <label for="hike-location">Search hikes</label>
+                <input
+                    type="text"
+                    id="hike-location"
+                    name="q"
+                    placeholder="Name, location or district"
+                    maxlength="150">
+            </div>
+
+            <div class="home-filter-field">
+                <label for="hike-date">Date</label>
+                <input
+                    type="date"
+                    id="hike-date"
+                    name="date">
+            </div>
+
+            <div class="home-filter-field">
+                <label for="hike-difficulty">Difficulty</label>
+                <select id="hike-difficulty" name="difficulty">
+                    <option value="">Any difficulty</option>
+                    <option value="easy">Easy</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="hard">Hard</option>
+                    <option value="expert">Expert</option>
+                </select>
+            </div>
+
+            <div class="home-filter-field">
+                <label for="hike-price">Maximum price (Rs)</label>
+                <input
+                    type="number"
+                    id="hike-price"
+                    name="max_price"
+                    placeholder="Any price"
+                    min="0"
+                    step="0.01"
+                    max="999999.99">
+            </div>
+
+            <button class="home-search-button" type="submit">
+                Search Hikes
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     aria-hidden="true"
+                     focusable="false">
+                    <circle cx="10.5" cy="10.5" r="6.5"
+                            stroke="currentColor" stroke-width="2"/>
+                    <path d="m16 16 5 5"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"/>
+                </svg>
+            </button>
+        </form>
+
+        <div class="home-quick-search">
+            <span>Or explore by difficulty</span>
+
+            <div class="home-quick-links"
+                 role="group"
+                 aria-label="Search by difficulty">
+                <a href="{% url 'hikes:list' %}?difficulty=easy">Easy</a>
+                <a href="{% url 'hikes:list' %}?difficulty=moderate">Moderate</a>
+                <a href="{% url 'hikes:list' %}?difficulty=hard">Hard</a>
+                <a href="{% url 'hikes:list' %}?difficulty=expert">Expert</a>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- DISCOVERY LINKS: use existing pages, not new backend features. -->
+    <section class="home-discover" aria-labelledby="home-discover-heading">
+
+        <div class="home-discover-heading">
+            <div>
+                <p class="home-section-label">Make it your journey</p>
+                <h2 id="home-discover-heading">
+                    More than a destination.
+                </h2>
+            </div>
+
+            <p>
+                Find a trail, share a moment,
+                and discover the island through other hikers.
+            </p>
+        </div>
+
+        <div class="home-discover-grid">
+
+            <a class="home-discover-card" href="{% url 'hikes:list' %}">
+                <div class="home-card-top">
+                    <span class="home-card-number" aria-hidden="true">01</span>
+                    <span class="home-card-arrow" aria-hidden="true">↗</span>
+                </div>
+
+                <h3>Find your trail</h3>
+                <p>
+                    Compare locations, dates and difficulty.
+                    Choose a hike that fits your plans.
+                </p>
+                <span class="home-card-action">Explore hikes</span>
+            </a>
+
+            <a class="home-discover-card"
+               href="{% url 'community:community' %}">
+                <div class="home-card-top">
+                    <span class="home-card-number" aria-hidden="true">02</span>
+                    <span class="home-card-arrow" aria-hidden="true">↗</span>
+                </div>
+
+                <h3>Share the journey</h3>
+                <p>
+                    Explore hiking moments and conversations
+                    from the Dina Arobi community.
+                </p>
+                <span class="home-card-action">Visit the community</span>
+            </a>
+
+            <a class="home-discover-card"
+               href="{% url 'community:reviews' %}">
+                <div class="home-card-top">
+                    <span class="home-card-number" aria-hidden="true">03</span>
+                    <span class="home-card-arrow" aria-hidden="true">↗</span>
+                </div>
+
+                <h3>Read their stories</h3>
+                <p>
+                    Discover what other hikers have shared
+                    about their experiences.
+                </p>
+                <span class="home-card-action">Read reviews</span>
+            </a>
+
+        </div>
+    </section>
+
+</div>
+{% endblock %}
