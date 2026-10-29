@@ -72,3 +72,132 @@ class HikePageTests(TestCase):
         })
         self.assertEqual(response.status_code, 302)
         self.assertContains(self.client.get(reverse('hikes:list')), 'New admin hike')
+class HomeSearchIntegrationTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        common = {
+            "date": date(2027, 1, 8),
+            "distance_km": 5,
+            "duration_minutes": 120,
+            "capacity": 10,
+        }
+
+        cls.free = Hike.objects.create(
+            title="Coastal Walk",
+            location="Flic en Flac",
+            district="Black River",
+            difficulty="easy",
+            price=0,
+            **common,
+        )
+
+        cls.waterfall = Hike.objects.create(
+            title="Waterfall Trail",
+            location="Henrietta",
+            district="Plaines Wilhems",
+            difficulty="moderate",
+            price="200.50",
+            **common,
+        )
+
+        cls.expert = Hike.objects.create(
+            title="Expert Ridge",
+            location="Le Morne",
+            district="Black River",
+            difficulty="expert",
+            price=500,
+            **common,
+        )
+
+    def search(self, **overrides):
+        # Match the fields submitted by the home-page form.
+        params = {
+            "q": "",
+            "date": "",
+            "difficulty": "",
+            "max_price": "",
+        }
+        params.update(overrides)
+        return self.client.get(reverse("hikes:list"), params)
+
+    def test_blank_home_filters_show_all_hikes(self):
+        response = self.search()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["form"].errors)
+        self.assertCountEqual(
+            response.context["hikes"],
+            [self.free, self.waterfall, self.expert],
+        )
+
+    def test_search_text_matches_title_location_and_district(self):
+        for query in ("waterfall", "henrietta", "plaines"):
+            with self.subTest(query=query):
+                response = self.search(q=query)
+
+                self.assertFalse(response.context["form"].errors)
+                self.assertEqual(
+                    list(response.context["hikes"]),
+                    [self.waterfall],
+                )
+
+    def test_combined_filters_and_inclusive_price_limit(self):
+        response = self.search(
+            q="Henrietta",
+            date="2027-01-08",
+            difficulty="moderate",
+            max_price="200.50",
+        )
+
+        self.assertFalse(response.context["form"].errors)
+        self.assertEqual(
+            list(response.context["hikes"]),
+            [self.waterfall],
+        )
+
+        # One cent below the hike's price excludes it.
+        response = self.search(
+            q="Henrietta",
+            date="2027-01-08",
+            difficulty="moderate",
+            max_price="200.49",
+        )
+        self.assertFalse(response.context["form"].errors)
+        self.assertEqual(list(response.context["hikes"]), [])
+
+    def test_zero_price_returns_only_free_hikes(self):
+        response = self.search(max_price="0")
+
+        self.assertFalse(response.context["form"].errors)
+        self.assertEqual(list(response.context["hikes"]), [self.free])
+
+    def test_expert_difficulty_is_supported(self):
+        response = self.search(difficulty="expert")
+
+        self.assertFalse(response.context["form"].errors)
+        self.assertEqual(list(response.context["hikes"]), [self.expert])
+
+    def test_invalid_filters_are_rejected(self):
+        cases = [
+            ("difficulty", "extreme"),
+            ("date", "not-a-date"),
+            ("max_price", "-1"),
+            ("max_price", "1000000"),
+        ]
+
+        for field, value in cases:
+            with self.subTest(field=field, value=value):
+                response = self.search(**{field: value})
+
+                self.assertEqual(response.status_code, 200)
+                self.assertIn(field, response.context["form"].errors)
+                self.assertEqual(list(response.context["hikes"]), [])
+
+    def test_listing_still_accepts_multiple_difficulties(self):
+        response = self.search(difficulty=["easy", "expert"])
+
+        self.assertFalse(response.context["form"].errors)
+        self.assertCountEqual(
+            response.context["hikes"],
+            [self.free, self.expert],
+        )
