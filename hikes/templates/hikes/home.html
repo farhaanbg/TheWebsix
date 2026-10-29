@@ -42,13 +42,13 @@
 
     <form class="home-filter" method="get" action="{% url 'hikes:list' %}">
         <div class="home-filter-field">
-            <label for="hike-location">Location</label>
+            <label for="hike-location">Search hikes</label>
             <input
                 type="text"
                 id="hike-location"
                 name="q"
-                placeholder="Enter a location"
-                maxlength="100">
+                placeholder="Name, location or district"
+                maxlength="150">
         </div>
 
         <div class="home-filter-field">
@@ -66,6 +66,7 @@
                 <option value="easy">Easy</option>
                 <option value="moderate">Moderate</option>
                 <option value="hard">Hard</option>
+                <option value="expert">Expert</option>
             </select>
         </div>
 
@@ -77,7 +78,8 @@
                 name="max_price"
                 placeholder="Any price"
                 min="0"
-                step="1">
+                step="0.01"
+                max="999999.99">
         </div>
 
         <button class="home-search-button"

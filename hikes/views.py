@@ -36,10 +36,22 @@ def hike_context(request):
         },
     }
 
-
 def hike_list(request):
     hikes = Hike.objects.all()
-    form = HikeFilterForm(request.GET)
+    # The home dropdown sends difficulty="" for "Any difficulty".
+    # The listing checkboxes send no value when nothing is selected.
+    # Treat both cases as no difficulty restriction.
+    filter_data = request.GET.copy()
+    filter_data.setlist(
+        "difficulty",
+        [
+            value
+            for value in filter_data.getlist("difficulty")
+            if value != ""
+        ],
+    )
+
+    form = HikeFilterForm(filter_data)
     context = hike_context(request)
     context.update({
         'available_count': hikes.filter(reserved_spots__lt=F('capacity')).count(),
