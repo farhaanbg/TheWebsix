@@ -1,88 +1,127 @@
-# Current feature test report — 28 October 2026
+# Current feature test report — 29 October 2026
 
-Tested the local working tree before committing the hike pages and account
-likes fix. No application code or user records were changed during the audit.
-The issues below are recorded for later work and remain unresolved in this snapshot.
+Re-audited the current local `main` after merging the accounts and community fixes.
+This report includes a fresh regression run, expanded functional checks and browser
+verification on 29 October. No application fixes were made during this audit.
 
-- Existing test suite: **10 passed**.
-- Additional functional checks: **56 run, 43 passed, 13 failed**. Several failures
-  share the same cause; this is not a count of distinct bugs. One failed check
-  identifies an account/community integration gap rather than a server crash.
-- Django system checks, migration consistency and installed dependencies: passed.
-- Additional browser verification: login, account like button, account comments
-  display, community navigation and the failing comment page.
-- Tests used isolated databases and in-memory upload storage. The browser used
-  a separate temporary database on port 8002, not the user's project database.
-- Local connectivity at the time of the audit: `/hikes/` on port **8000 returned
-  HTTP 200**. Port 8001 refused connections. This audit did not change either server.
+## Latest verification
 
-## Confirmed errors
+- Django test suite: **25 passed** (10 existing tests and 15 new regression tests).
+- Expanded functional audit: **71 checks, 67 passed and 4 failed**. The four
+  failures cover three distinct known problems: signed-out community login
+  (two routes), existing duplicate-email login, and invalid account photo uploads.
+- Django system checks and installed dependency consistency: passed.
+- Model/migration consistency: passed; no missing migrations.
+- Local migration plan: no pending operations.
+- Whitespace check: passed.
+- Browser verification: login, account like/unlike and comment creation, community
+  comment panel and submission, post details, review display and account navigation.
+- Browser checks additionally confirmed unsafe HTML interpretation in account
+  comments and a four-hour difference in comment timestamp display. These are
+  separate findings from the 71 functional checks.
+- Passing regression tests do not mean all known issues are fixed.
+
+## Fixed issues and added controls
+
+| Previous issue | Current result / verification |
+| --- | --- |
+| Community Add comment page crashes with `NoReverseMatch` | Fixed. The page and empty-submission error page render; valid comments save. |
+| Delete post confirmation crashes | Fixed. Confirmation renders and owner deletion succeeds. Another user's deletion is rejected. |
+| Delete Account page and incorrect-password response crash | Fixed. Both render; an incorrect password leaves the account intact. |
+| Password reset email fails to generate | Fixed. Request, generated email link, new password submission and completion page pass end to end using simulated email delivery. |
+| Account likes button lacks a handler and endpoint | Fixed. Direct requests and browser clicks like/unlike successfully; card counts and the dashboard total update. |
+| Invalid account username edit gives no feedback | Fixed. Duplicate-username validation feedback appears after redirecting. |
+| Changing full name to one word retains the old surname | Fixed. Saving `Solo` clears the previous last name. |
+| Community/Reviews account avatar links to the wrong page | Fixed. Rendered signed-in links point to the account dashboard on both pages. |
+| Community comment popup is not connected | Fixed. Browser toggle opens the comment panel; submitting returns to Community, and the saved comment appears on post details. |
+| Account comments have no creation route or form | Fixed. Direct requests and browser form submission save and display comments; empty comments are rejected. |
+| Signup/profile editing allow duplicate emails | Both forms now reject duplicates without regard to case. Existing duplicate-email login remains broken, as detailed below. |
+
+Account editing retains login protection. The merge also corrects the new
+password-reset completion template's filename so the intended page is used.
+Your hike pages, filtering, account likes counts and shared navigation were preserved.
+
+## Confirmed errors still present
+
+These cases were reproduced during this re-audit, using isolated test data.
 
 | Priority | Feature / reproduction | Result and cause |
 | --- | --- | --- |
-| High | Sign out, open Community, then New Post or a sign-in action | Redirects to `/community/login/`, which crashes because `community/login.html` does not exist. Reviews use this login route too. |
-| High | Sign in, click Add comment on a community post | Server error: `NoReverseMatch`. `addcomment.html:21` uses `community:post_detail`; the registered name is `community:post-detail`. Submitting an empty comment reaches the same broken error page. |
-| High | Open the Delete post confirmation page | Same incorrect URL name in `deletepost.html:22`. Direct valid deletion requests succeed, but the normal confirmation page cannot render. |
-| High | Account dashboard > Delete Account | Missing `accounts/delete_account.html` causes a server error. Submitting an incorrect password also crashes. Direct submission with a correct password works in the isolated test. |
-| High | Forgot password > submit an existing user's email | Server error reversing `password_reset_confirm`. The app lacks its own reset email template, so Django's available default template tries an unnamespaced route while this app uses `accounts:password_reset_confirm`. Password change while already logged in works. |
-| Medium | Two users share an email, then someone logs in using that email | `User.MultipleObjectsReturned` server error from `User.objects.get(email=...)`. Signup/profile forms allow duplicate email addresses. Username login and login with a unique email pass. |
-| Medium | Account moment > click the likes button | Confirmed in browser: `ReferenceError: toggleLike is not defined`. The button has an onclick handler but no implementation or account like endpoint. Displaying existing counts works. |
-| Medium | Modify Account > enter a username already used by another user | Edit is rejected, but the view redirects without showing validation errors. The user sees unchanged details with no explanation. |
-| Medium | Change full name from `Audit Tester` to `Solo` | Saved name becomes `Solo Tester`: the edit form never clears the old last name when only one word is supplied. |
-| Medium | Upload non-image contents as an account moment photo | Accepted and stored. The dashboard saves `request.FILES` directly without an image form validation step. Community photo uploads correctly reject the same invalid file. |
-| Medium | Click the account avatar from Community or Reviews while signed in | Link points to `/community/login/?next=...` instead of the account dashboard. That route also has the missing-template error described above. |
+| High | Sign out, then open Community > New Post | Redirects to `/community/login/`, which returns HTTP 500 because `community/login.html` is missing. Protected community/review actions still use this route. The navbar avatar now links to the accounts login page. |
+| Medium | Two existing users share an email, then someone logs in using that email | HTTP 500 from `User.MultipleObjectsReturned` in `User.objects.get(email=...)`. New form validation prevents duplicates through signup/profile editing, but does not resolve existing records or handle ambiguous login. |
+| Medium | Upload non-image contents as an account moment photo | Invalid contents are still accepted and stored. The dashboard saves `request.FILES` without image-form validation. |
+| High | Add HTML markup to an account comment, then view it | Confirmed HTML interpretation: a harmless `<strong>` formatting marker becomes a real DOM element instead of literal text. Comment text is interpolated into `innerHTML`; this leaves a stored script-injection risk. No executable payload was submitted. |
+| Low | Compare newly created account/community comment times | Account comments display UTC using direct `strftime`, while community templates display local time. Browser examples from the same session showed account `04:02` and community `08:02` (UTC+4). Account times need local-time conversion or an explicit timezone label. |
 
 ## Integration gaps and incomplete controls
 
-- Account moments and community posts are separate models/tables. Creating a
-  community post does not add it to the account dashboard or its likes totals.
-  The audit's shared-posts expectation failed for this reason. The team needs to
-  decide whether they should be the same content before changing the models.
-- Community popup markup exists, but the community template does not include
-  its JavaScript file. Its comment link navigates to the separate broken page
-  instead of opening a popup. The existing script also expects different markup
-  (`data-comment-toggle`) than the current links (`data-comment-url`).
-- The account comments popup displays and deletes existing comments; there is
-  no account comment-creation route or form. The account Settings link points to
-  `#` and has no settings page.
-- Booking creation, payment, saving hikes, announcements and Q&A are not
-  implemented as complete user flows. The `bookings` app remains a scaffold;
-  the account dashboard can display separate account booking records. These
-  are unfinished features, not failures of the new hike listing.
-- Source-review concern: account comments are inserted using `innerHTML` with
-  unescaped comment text. This can interpret stored text as HTML. Use text nodes
-  when this area is fixed. No malicious payload was run during this audit.
+The following remain in the source and were not resolved by the merged branches:
 
-## What passed
+- Account moments and community posts use separate models/tables. Community
+  posts do not appear as account moments or contribute to account likes totals.
+  The team needs to decide whether these should represent the same content.
+- Account Settings remains a `#` placeholder with no settings page.
+- Booking creation, payment, saving hikes, announcements and Q&A remain incomplete
+  user flows. The `bookings` app is a scaffold; the dashboard can display separate
+  account booking records. These are unfinished features.
 
-- Home, hike listing, community, reviews, account login/signup and dashboard pages.
-- Hike search by name/district, combined location/date/price/difficulty filters,
-  sorting, empty results, invalid filter handling, detail pages and missing-hike 404s.
-- Hike admin create with photo, edit, delete, availability and fully booked display;
-  capacity validation and blocking regular users from admin pages.
-- Signup, duplicate-username validation, username and unique-email login,
-  incorrect-password handling, logout and the fixed account likes totals.
-- Valid profile editing with avatar/cover uploads, password change, and rejection
-  of an incorrect current password.
-- Account moment creation with a valid photo and owner deletion; rejecting another
-  user's deletion attempt; fetching comments and owner moderation.
-- Community text/photo post creation, invalid image rejection, like/unlike and
-  prevention of duplicate likes.
-- Direct valid comment submission, direct confirmed owner/staff deletion and
-  rejection of another user's deletion attempt. Normal comment/delete page
-  navigation still fails as described above.
-- Review creation, average rating calculation and rejection of out-of-range ratings.
-- Admin listing/form pages for hikes, community content, reviews and users.
-- CSRF rejection on an untrusted community post request.
+## Additional merged behavior
+
+- Likes submitted from community post details return to that detail page;
+  redirect behavior passes.
+- Review creation dates render in day/month/year format; rendering passes.
+  The timestamp field already existed; the branch changes its display.
+- Community styling, footer, post metadata and visible action counts were updated.
+  Community and reviews were inspected in the browser at its default viewport;
+  responsive layouts and visual polish were not exhaustively reviewed.
+
+## Current functional coverage
+
+The expanded audit exercised:
+
+- Public home, hikes, community, reviews, login, signup and reset-request pages.
+- Signed-out access to protected community/review and account pages.
+- Signup, duplicate-email rejection, username/email login, wrong passwords,
+  existing duplicate-email handling and session creation.
+- Profile name/avatar/cover edits, duplicate-username feedback, valid/invalid
+  moment uploads, account like/unlike, comment creation and empty-comment rejection.
+- Account comment moderation and moment deletion permission checks.
+- Community text/photo post creation, invalid-image rejection, comment/delete
+  confirmation pages, valid/empty comments, duplicate-like prevention, unlike
+  redirects, owner deletion and rejection of unauthorized deletion.
+- Review creation, invalid-rating rejection and average calculation.
+- Combined hike filters, invalid filters, detail pages, missing-hike 404s,
+  admin access restrictions, admin listings and CSRF rejection.
+- Account deletion with correct/incorrect passwords and password change with
+  session retention.
+
+The 25-test regression suite additionally rechecked the complete password-reset
+flow with captured email, duplicate-email profile validation, review-date rendering,
+hike availability/capacity behavior, sorting, empty listings and hike admin creation.
+
+Browser checks confirmed the working account/community comment controls,
+like/unlike counts, review dates, post details and Reviews-to-account navigation.
+The account Settings and My Bookings sidebar links still point to `#`.
+Reviews use an inline All Reviews fallback; a review modal was not asserted.
+
+For historical context, the 28 October audit ran 56 additional checks: 43 passed
+and 13 failed. Those historical counts are separate from this re-audit; no direct
+percentage comparison is appropriate because the check sets differ.
 
 ## Evidence and limits
 
-The additional test script (`feature_audit.py`), summary
-(`feature-audit-results.json`) and tracebacks (`feature-audit-log.txt`) were kept
-locally outside the repository. This report records their findings for the team.
-The repository's own tests can be run with `python manage.py test`.
+Regression tests are saved in `accounts/tests.py`, `community/tests.py` and
+`hikes/tests.py`. Run them with `python manage.py test`.
+The separate audit script and its 71-check JSON results are saved outside the
+repository in this chat's artifact workspace under `hiking-audit/`.
 
-This is a functional review of implemented paths with selected negative cases
-and targeted browser checks, not a guarantee of every possible input or device.
-No production deployment, real email delivery or payment system was tested.
-No fixes were applied during this audit.
+Functional checks used isolated test databases and in-memory upload storage.
+Browser checks used a separate temporary SQLite database and media directory on
+port 8013 with generated audit accounts. That audit server was stopped and its
+temporary database/uploads were removed afterward. The project's database,
+accounts, uploads and existing servers were not modified.
+
+Password reset captured email in memory; real email delivery was not tested.
+The markup probe used harmless formatting and did not execute a script.
+No production deployment, real payment system or exhaustive device/responsive
+review was performed. This is targeted functional and browser verification.
