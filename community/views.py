@@ -16,13 +16,15 @@ from django.http import (HttpResponseBadRequest, HttpResponseForbidden,
 from django.shortcuts import get_object_or_404, render, resolve_url
 from django.urls import reverse
 from django.views import generic
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods, require_POST
+from django.utils.decorators import method_decorator
 
 from .forms import (AddCommentModelForm, AddPostModelForm, AddReviewForm,
                     DeletePostForm, EditPostModelForm, LikePostForm)
 from .models import Comment, Post, PostLike, Review
 
-LOGIN_URL = getattr(settings, 'DINA_AROBI_LOGIN_URL', 'community:login')
+LOGIN_URL = getattr(settings, 'DINA_AROBI_LOGIN_URL', 'accounts:login')
 
 
 def page_context(request, active_class):
@@ -37,6 +39,7 @@ def page_context(request, active_class):
     return context
 
 
+@method_decorator(never_cache, name='dispatch')
 class ReviewListView(generic.ListView):
     # Equivalent to HouseListView: model, template, list in the context.
     model = Review
@@ -60,6 +63,7 @@ class ReviewListView(generic.ListView):
         return context
 
 
+@method_decorator(never_cache, name='dispatch')
 class PostListView(generic.ListView):
     model = Post
     template_name = 'community/community.html'
@@ -87,6 +91,7 @@ class PostListView(generic.ListView):
         return context
 
 
+@method_decorator(never_cache, name='dispatch')
 class PostDetailView(generic.DetailView):
     # Like HouseDetailView; pk comes from the URL and the template receives post.
     model = Post
