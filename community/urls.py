@@ -8,6 +8,7 @@ urlpatterns = [
     path('reviews/', views.ReviewListView.as_view(), name='reviews'),
     path('community/', views.PostListView.as_view(), name='community'),
     path('community/posts/<int:pk>/', views.PostDetailView.as_view(), name='post-detail'),
+    path('community/posts/<int:pk>/', views.PostDetailView.as_view(), name='post_detail'),
 
    
     path('reviews/create/', views.add_review, name='review_create'),

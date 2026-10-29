@@ -41,8 +41,11 @@
                 {% endblock navbar %}
             </nav>
             <div class="da-navbar-tools">
-                {% url 'community:login' as fallback_login %}
-                {% firstof community_nav.profile login_url fallback_login as profile_url %}
+                {% if request.user.is_authenticated %}
+                    {% url 'accounts:account_detail' as profile_url %}
+                {% else %}
+                    {% url 'accounts:login' as profile_url %}
+                {% endif %}
                 <a class="da-navbar-avatar" href="{{ profile_url }}" aria-label="{% if request.user.is_authenticated %}Account{% else %}Sign in{% endif %}">{% if request.user.is_authenticated %}{{ request.user.get_username|first|upper }}{% else %}M{% endif %}</a>
             </div>
         </div>
@@ -52,6 +55,9 @@
             {% block content %}{% endblock %}
         {% endwith %}
     </main>
+    <footer class="da-footer">
+        © 2026 Dina Arobi Hikes. Professional hiking experiences across Mauritius.
+    </footer>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

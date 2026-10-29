@@ -13,13 +13,8 @@
       </div>
       <form method="post" class="da-form">
         {% csrf_token %}
-        <div class="da-field da-confirm-field">
-          {{ form.confirm }}
-          <label for="{{ form.confirm.id_for_label }}">{{ form.confirm.label }}</label>
-        </div>
-        {% if form.confirm.errors %}<div class="da-field-errors">{{ form.confirm.errors }}</div>{% endif %}
         <div class="da-form-actions">
-          <a href="{% url 'community:post_detail' post.pk %}" class="da-text-link">Cancel</a>
+          <a href="{% url 'community:post-detail' post.pk %}" class="da-text-link">Cancel</a>
           <button type="submit" class="da-button da-button-danger da-button-compact">Delete Post</button>
         </div>
       </form>

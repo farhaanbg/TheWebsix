@@ -92,10 +92,7 @@ class LikePostForm(forms.Form):
 
 
 class DeletePostForm(forms.Form):
-    confirm = forms.BooleanField(
-        required=True,
-        label='I understand that this post, its comments and its likes will be deleted.',
-    )
+    pass
 
 
 class PostAdminForm(AddPostModelForm):
