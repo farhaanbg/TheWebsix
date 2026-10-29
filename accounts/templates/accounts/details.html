@@ -197,6 +197,20 @@
 
   <!-- Main Content Area -->
   <main class="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl mx-auto w-full">
+    {% if messages %}
+      <div class="mb-4 space-y-2">
+        {% for message in messages %}
+          <div class="p-3 rounded-lg text-sm font-semibold
+            {% if message.tags == 'error' %}
+              bg-red-100 text-red-800
+            {% else %}
+              bg-green-100 text-green-800
+            {% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
 
 
     <!-- Profile Banner -->
@@ -271,7 +285,7 @@
   </div>
 
 
-  <!-- Edit account form -->
+ <!-- Edit account form -->
 <div id="accountEdit" class="hidden">
 
   <form method="POST"
@@ -373,7 +387,7 @@
           <div class="text-center sm:text-left border-r border-[#e1e7e2] pr-6">
 
             <div class="font-outfit text-2xl sm:text-3xl font-extrabold text-[#12281d]">
-              {{ total_likes }}
+              <span id="profile-total-likes">{{ total_likes }}</span>
             </div>
 
             <div class="text-xs font-bold uppercase tracking-wider text-[#5d6e64]">
@@ -493,18 +507,20 @@
           <div class="flex items-center justify-between pt-4 mt-4 border-t border-[#f0f4f1] text-xs font-semibold text-[#5d6e64]">
 
             <button
-              onclick="toggleLike(this)"
-              class="flex items-center gap-1.5 hover:text-rose-600 transition-colors">
+            type="button"
+            data-url="{% url 'accounts:toggle_like' moment.id %}"
+            onclick="toggleLike(this)"
+            class="flex items-center gap-1.5 hover:text-rose-600 transition-colors">
 
-              <i data-lucide="heart"
-                 class="w-4 h-4 text-rose-500 fill-rose-500">
-              </i>
+            <i data-lucide="heart"
+              class="w-4 h-4 text-rose-500 fill-rose-500">
+            </i>
 
-              <span>
-                {{ moment.likes_count }} likes
-              </span>
+            <span id="like-count-{{ moment.id }}">
+              {{ moment.likes_count }} likes
+            </span>
 
-            </button>
+          </button>
 
 
             <button
@@ -751,11 +767,32 @@
 
 
       <div id="commentsList"
-           class="overflow-y-auto space-y-3 flex-1 pr-1">
-
-        <!-- Comments will be populated dynamically -->
+          class="overflow-y-auto space-y-3 flex-1 pr-1 min-h-0">
 
       </div>
+
+      <form id="addCommentForm" class="mt-4 pt-4 border-t border-[#f0f4f1]">
+          {% csrf_token %}
+
+          <textarea
+              id="newCommentText"
+              name="text"
+              rows="3"
+              maxlength="2000"
+              placeholder="Write a comment..."
+              required
+              class="w-full rounded-xl border border-[#e1e7e2] p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2d5a43] resize-none"
+          ></textarea>
+
+          <p id="commentError" class="text-xs text-red-600 mt-1"></p>
+
+          <button
+              type="submit"
+              id="submitCommentButton"
+              class="mt-2 w-full rounded-xl bg-[#12281d] text-white py-3 text-sm font-semibold hover:bg-[#2d5a43] disabled:opacity-50">
+              Add Comment
+          </button>
+      </form>
 
     </div>
 
@@ -820,8 +857,11 @@
 
     }
 
+    let activeCommentMomentId = null;
+
 
     function openCommentsModal(momentId) {
+      activeCommentMomentId = momentId;
 
       const modal =
         document.getElementById('commentsModal');
@@ -932,6 +972,79 @@
         .classList.add('hidden');
 
     }
+    document.getElementById("addCommentForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const form = this;
+      const textarea = document.getElementById("newCommentText");
+      const errorMessage = document.getElementById("commentError");
+      const submitButton = document.getElementById("submitCommentButton");
+      const text = textarea.value.trim();
+
+      errorMessage.textContent = "";
+
+      if (!text) {
+          errorMessage.textContent = "Please enter a comment.";
+          return;
+      }
+
+      if (!activeCommentMomentId) {
+          errorMessage.textContent = "Please select a moment.";
+          return;
+      }
+
+      const csrfInput = form.querySelector('[name="csrfmiddlewaretoken"]');
+
+      submitButton.disabled = true;
+
+      const formData = new FormData();
+      formData.append("text", text);
+
+      fetch(
+          "{% url 'accounts:add_comment' 0 %}".replace("0", activeCommentMomentId),
+          {
+              method: "POST",
+              headers: {
+                  "X-CSRFToken": csrfInput.value,
+                  "X-Requested-With": "XMLHttpRequest"
+              },
+              body: formData
+          }
+      )
+      .then(async response => {
+          const data = await response.json();
+
+          if (!response.ok) {
+              throw new Error(data.error || "Could not add comment.");
+          }
+
+          return data;
+      })
+      .then(data => {
+          if (!data.success) {
+              throw new Error(data.error || "Could not add comment.");
+          }
+
+          textarea.value = "";
+
+          const countSpan = document.getElementById(
+              "comment-count-" + activeCommentMomentId
+          );
+
+          if (countSpan) {
+              countSpan.textContent = data.total_comments + " comments";
+          }
+
+          openCommentsModal(activeCommentMomentId);
+      })
+      .catch(error => {
+          errorMessage.textContent = error.message;
+          console.error("Add comment error:", error);
+      })
+      .finally(() => {
+          submitButton.disabled = false;
+      });
+  });
 
 
     function deleteComment(commentId, momentId) {
@@ -1094,8 +1207,74 @@
 
         form.submit();
     }
+    function toggleLike(button) {
+    const momentId = button.querySelector("span").id.replace("like-count-", "");
+    const countSpan = document.getElementById("like-count-" + momentId);
+    const heart = button.querySelector("[data-lucide='heart']");
+
+    const csrfInput = document.querySelector('[name="csrfmiddlewaretoken"]');
+
+    if (!csrfInput) {
+        showNotification("Security token not found. Refresh the page.");
+        return;
+    }
+
+    button.disabled = true;
+
+    fetch(button.dataset.url, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": csrfInput.value,
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Request failed: " + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        
+        countSpan.textContent = data.total_likes + " likes";
+
+        const profileLikes = document.getElementById("profile-total-likes");
+
+        if (profileLikes) {
+            profileLikes.textContent = Number(profileLikes.textContent) + (data.liked ? 1 : -1);
+        }
+
+        heart.classList.toggle("fill-rose-500", data.liked);
+        heart.classList.toggle("text-rose-500", data.liked);
+        heart.classList.toggle("fill-none", !data.liked);
+        heart.classList.toggle("text-gray-400", !data.liked);
+    })
+    .catch(error => {
+        console.error("Like error:", error);
+        showNotification(error.message);
+    })
+    .finally(() => {
+        button.disabled = false;
+    });
+}
 
   </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const messages = document.querySelectorAll("main .mb-4.space-y-2 > div");
+
+    messages.forEach(function (message) {
+      setTimeout(function () {
+        message.style.transition = "opacity 0.5s ease";
+        message.style.opacity = "0";
+
+        setTimeout(function () {
+          message.remove();
+        }, 500);
+      }, 3000);
+    });
+  });
+</script>
 
 </body>
 </html>

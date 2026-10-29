@@ -123,13 +123,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Email
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
+# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-
-}
+# Email
+EMAIL_BACKEND = 'thewebsix.email_backend.CleanConsoleEmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@example.com'
 
 DINA_AROBI_NAV_URLS = {
     "home": "/",

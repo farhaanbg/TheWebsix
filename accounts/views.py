@@ -7,12 +7,9 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeDoneView
-from django.db.models import Count, Sum
-from .models import UserProfile
-from .forms import EditAccountForm, ProfileForm
-from .forms import SignupForm, EditAccountForm
+from django.db.models import Count
+from .forms import SignupForm, EditAccountForm, ProfileForm
 from .models import Moment, Comment, Booking, UserProfile
-
 
 # -------------------------
 # SIGN UP
@@ -109,8 +106,8 @@ def dashboard_view(request):
 
     # Count the users who liked each moment, then total those counts.
     total_likes = moments.aggregate(
-        Sum("likes_count")
-    )["likes_count__sum"] or 0
+        total=Count('likes')
+    )['total']
 
     # Get full name
     full_name = (
@@ -175,6 +172,45 @@ def get_comments(request, moment_id):
         "moment_title": moment.title
     })
 
+# =========================
+# ADD COMMENT
+# =========================
+
+@login_required
+def add_comment(request, moment_id):
+
+    if request.method != "POST":
+        return JsonResponse(
+            {"success": False, "error": "POST request required."},
+            status=405
+        )
+
+    moment = get_object_or_404(Moment, id=moment_id)
+    text = request.POST.get("text", "").strip()
+
+    if not text:
+        return JsonResponse(
+            {"success": False, "error": "Comment cannot be empty."},
+            status=400
+        )
+
+    comment = Comment.objects.create(
+        moment=moment,
+        user=request.user,
+        text=text
+    )
+
+    return JsonResponse({
+        "success": True,
+        "comment": {
+            "id": comment.id,
+            "user": comment.user.get_full_name() or comment.user.username,
+            "text": comment.text,
+            "created_at": comment.created_at.strftime("%b %d, %Y %H:%M"),
+            "can_delete": True
+        },
+        "total_comments": moment.comments.count()
+    })
 
 # =========================
 # DELETE COMMENT
@@ -216,21 +252,37 @@ def delete_comment(request, comment_id):
         status=400
     )
 
+
 @login_required
 def edit_account(request):
     # Ensure profile exists for the user
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        user_form = EditAccountForm(request.POST, instance=request.user)
-        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
+        user_form = EditAccountForm(
+            request.POST,
+            instance=request.user
+        )
+        profile_form = ProfileForm(
+            request.POST,
+            request.FILES,
+            instance=profile
+        )
 
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
             messages.success(request, "Account updated successfully.")
+        else:
+            for form in (user_form, profile_form):
+                for errors in form.errors.values():
+                    for error in errors:
+                        messages.error(request, error)
 
     return redirect("accounts:account_detail")
+
+
+
 
 @login_required
 def delete_moment(request, moment_id):
@@ -328,3 +380,26 @@ def delete_account(request):
         request,
         "accounts/delete_account.html"
     )
+
+
+@login_required
+def toggle_like(request, moment_id):
+    if request.method != "POST":
+        return JsonResponse(
+            {"error": "POST request required."},
+            status=405
+        )
+
+    moment = get_object_or_404(Moment, id=moment_id)
+
+    if moment.likes.filter(id=request.user.id).exists():
+        moment.likes.remove(request.user)
+        liked = False
+    else:
+        moment.likes.add(request.user)
+        liked = True
+
+    return JsonResponse({
+        "liked": liked,
+        "total_likes": moment.likes.count()
+    })
