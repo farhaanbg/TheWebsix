@@ -76,6 +76,25 @@ class AddPostModelForm(ModelForm):
             raise forms.ValidationError('The photo could not be read. Choose another image.') from error
 
 
+class EditPostModelForm(AddPostModelForm):
+    remove_image = forms.BooleanField(
+        required=False,
+        label='Remove current photo',
+        widget=forms.CheckboxInput(attrs={'class': 'da-checkbox'}),
+    )
+
+    class Meta(AddPostModelForm.Meta):
+        labels = {'caption': 'Caption', 'image': 'Replace photo (Optional)'}
+
+    def clean(self):
+        cleaned_data = super().clean()
+        image = cleaned_data.get('image')
+        is_new_upload = image and hasattr(image, 'content_type')
+        if cleaned_data.get('remove_image') and is_new_upload:
+            raise forms.ValidationError('Choose a replacement photo or remove the current photo, not both.')
+        return cleaned_data
+
+
 class AddCommentModelForm(ModelForm):
     class Meta:
         model = Comment
