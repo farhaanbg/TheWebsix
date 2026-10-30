@@ -1,0 +1,31 @@
+{% extends "community/base.html" %}
+{% load static %}
+
+{% block title %}Page not found | Dina Arobi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'home/css/404.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="not-found" aria-labelledby="not-found-heading">
+    <div class="not-found-content">
+        <p class="not-found-eyebrow">A little off the beaten path</p>
+        <p class="not-found-code" aria-label="Error 404">404</p>
+        <svg class="not-found-landscape" viewBox="0 0 560 180" fill="none" aria-hidden="true">
+            <path d="M0 165 120 35 205 125 310 15 465 165Z" fill="#183723"/>
+            <path d="m220 165 175-105 165 105Z" fill="#244a30"/>
+            <path d="m89 69 31-34 35 37-33-13-16 16Z" fill="#b8c7ba"/>
+            <path d="m277 53 33-38 45 44-41-15-17 17Z" fill="#d5dfd0"/>
+            <path d="M290 175c-100-24 102-38 4-63-31-8-22-20-10-28" stroke="#ebc535" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 10"/>
+            <circle cx="470" cy="30" r="13" fill="#ebc535"/>
+        </svg>
+        <h2 id="not-found-heading">This trail leads somewhere else.</h2>
+        <p class="not-found-description">We couldn't find the page you're looking for. Head back home or find your next adventure.</p>
+        <div class="not-found-actions">
+            <a class="not-found-button not-found-primary" href="{% url 'home' %}">Back to Home <span aria-hidden="true">&rarr;</span></a>
+            <a class="not-found-button not-found-secondary" href="{% url 'hikes:list' %}">Explore Hikes</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

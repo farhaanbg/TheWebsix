@@ -1,25 +1,33 @@
 {% extends "community/base.html" %}
 {% load static %}
 {% block title %}Explore Hikes | Dina Arobi{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'hikes/css/hikes.css' %}">{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'hikes/css/hikes.css' %}">
+<link rel="stylesheet" href="{% static 'hikes/css/list.css' %}">
+{% endblock %}
 {% block content %}
-<div class="hikes-page">
+<div class="hikes-page hikes-list-page">
     <header class="hikes-intro">
-        <div class="hikes-container">
-            <p class="hikes-eyebrow">Discover · Mauritius</p>
-            <h1>Explore hikes</h1>
-            <p class="hikes-lead">Guided trails across the island — from coastal walks to jungle waterfalls and mountain summits.</p>
-            <dl class="hikes-stats">
-                <div><dt>Trails available</dt><dd>{{ available_count }}</dd></div>
-                <div><dt>Guides</dt><dd>{{ guide_count }}</dd></div>
-                <div><dt>Districts</dt><dd>{{ district_count }}</dd></div>
-            </dl>
+        <div class="hikes-container hikes-intro-layout">
+            <div class="hikes-intro-copy">
+                <p class="hikes-eyebrow"><span></span> Trail overview</p>
+                <h1>Explore hikes</h1>
+                <dl class="hikes-stats" aria-label="Trail directory statistics">
+                    <div class="hikes-stat-primary"><dt>Trails with spaces</dt><dd>{{ available_count }}</dd></div>
+                    <div><dt>Guides</dt><dd>{{ guide_count }}</dd></div>
+                    <div><dt>Districts</dt><dd>{{ district_count }}</dd></div>
+                </dl>
+                <p class="hikes-stats-note"><span aria-hidden="true"></span>Current availability across our trail directory.</p>
+            </div>
+            <div class="hikes-landscape" aria-hidden="true">
+                <span class="hikes-landscape-mark">MAURITIUS / TRAIL DIRECTORY</span>
+            </div>
         </div>
     </header>
     <section class="hikes-filter-section" aria-label="Find a hike">
         <form class="hikes-container hikes-filter" id="hike-filter" method="get">
-            <label class="hikes-sr-only" for="{{ form.q.id_for_label }}">{{ form.q.label }}</label>
-            {{ form.q }}
+            <div class="hikes-filter-heading"><div><p class="hikes-eyebrow">Make it your adventure</p><h2>Where would you like to go?</h2></div><a class="hikes-reset" href="{% url 'hikes:list' %}">Clear filters <span aria-hidden="true">↗</span></a></div>
+            <div class="hikes-search-field"><label for="{{ form.q.id_for_label }}">{{ form.q.label }}</label><div class="hikes-search-input"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>{{ form.q }}</div></div>
             <div class="hikes-filter-row">
                 <div class="hikes-field"><label for="{{ form.location.id_for_label }}">Location</label>{{ form.location }}</div>
                 <div class="hikes-field"><label for="{{ form.date.id_for_label }}">Date</label>{{ form.date }}</div>
@@ -27,15 +35,14 @@
                 <fieldset class="hikes-difficulties"><legend>Difficulty</legend>
                     {% for checkbox in form.difficulty %}<label class="hikes-checkbox">{{ checkbox.tag }}<span>{{ checkbox.choice_label }}</span></label>{% endfor %}
                 </fieldset>
-                <button class="hikes-button" type="submit">Search hikes</button>
-                <a class="hikes-reset" href="{% url 'hikes:list' %}">Reset</a>
+                <button class="hikes-button hikes-search-button" type="submit">Find my trail <span aria-hidden="true">↗</span></button>
             </div>
             {% if form.errors %}<div class="hikes-errors" role="alert">{% for field in form %}{% for error in field.errors %}<p>{{ field.label }}: {{ error }}</p>{% endfor %}{% endfor %}</div>{% endif %}
         </form>
     </section>
     <section class="hikes-container hikes-results" aria-label="Hike results">
         <div class="hikes-results-bar">
-            <p>{{ hikes|length }} hike{{ hikes|length|pluralize }} <span>· includes fully booked</span></p>
+            <div class="hikes-results-title"><p class="hikes-eyebrow">The trail collection</p><h2>A change of scenery awaits.</h2><p>{{ hikes|length }} hike{{ hikes|length|pluralize }} <span>· includes fully booked</span></p></div>
             <div class="hikes-sort"><label for="id_sort">Sort:</label>
                 <select name="sort" id="id_sort" form="hike-filter">
                     {% for value, label in form.fields.sort.choices %}<option value="{{ value }}"{% if form.sort.value == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
@@ -49,18 +56,22 @@
                     {% if hike.image %}<img src="{{ hike.image.url }}" alt="{{ hike.title }}" loading="lazy">{% else %}<div class="hike-photo-placeholder" role="img" aria-label="No photo available"><span aria-hidden="true">△</span><span>Dina Arobi Hikes</span></div>{% endif %}
                     {% if not hike.spots_remaining %}<div class="hike-full-banner">× Fully booked</div>{% endif %}
                     <span class="hike-difficulty hike-difficulty-{{ hike.difficulty }}">{{ hike.get_difficulty_display }}</span>
-                    <div class="hike-card-date"><span>{{ hike.date|date:"D" }}</span><strong>{{ hike.date|date:"j M Y" }}</strong></div>
+                    <time class="hike-card-date" datetime="{{ hike.date|date:'Y-m-d' }}"><strong>{{ hike.date|date:"j" }}</strong><span>{{ hike.date|date:"M" }} · {{ hike.date|date:"D" }}</span></time>
                 </div>
                 <div class="hike-card-body">
                     <h2><a href="{{ hike.get_absolute_url }}">{{ hike.title }}</a></h2>
                     <p class="hike-location">{{ hike.location }}{% if hike.district %}, {{ hike.district }}{% endif %}</p>
-                    <ul class="hike-metrics" aria-label="Trail information"><li>{{ hike.distance_km }} km</li><li>{{ hike.elevation_m }} m elevation</li><li>{{ hike.duration_display }}</li></ul>
+                    <ul class="hike-metrics" aria-label="Trail information">
+                        <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 18 9 5l6 14 5-13M4 18l11 1M9 5l11 1"/><circle cx="4" cy="18" r="2"/></svg><span>{{ hike.distance_km }} km</span></li>
+                        <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m3 20 9-16 9 16H3ZM9 10l3 3 3-3"/></svg><span>{{ hike.elevation_m }} m elevation</span></li>
+                        <li><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg><span>{{ hike.duration_display }}</span></li>
+                    </ul>
                     <div class="hike-tags">{% for tag in hike.tag_list %}<span>{{ tag }}</span>{% endfor %}</div>
                     <div class="hike-availability{% if hike.availability_percent <= 25 %} hike-availability-low{% endif %}">
                         <meter min="0" max="{{ hike.capacity }}" value="{{ hike.spots_remaining }}" aria-label="Available spots for {{ hike.title }}">{{ hike.spots_remaining }} of {{ hike.capacity }}</meter>
                         <p>{% if hike.spots_remaining %}{{ hike.spots_remaining }} of {{ hike.capacity }} spots remaining{% else %}No spots remaining{% endif %}</p>
                     </div>
-                    <div class="hike-card-footer"><div><span>Per person</span><strong>Rs {{ hike.price|floatformat:"-2" }}</strong></div><a class="hikes-button" href="{{ hike.get_absolute_url }}">View details<span class="hikes-sr-only"> for {{ hike.title }}</span></a></div>
+                    <div class="hike-card-footer"><div><span>Per person</span><strong><small>Rs</small> {{ hike.price|floatformat:"-2" }}</strong></div><a class="hikes-button" href="{{ hike.get_absolute_url }}">View details <span aria-hidden="true">↗</span><span class="hikes-sr-only"> for {{ hike.title }}</span></a></div>
                 </div>
             </article>
             {% empty %}

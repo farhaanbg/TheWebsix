@@ -1,7 +1,33 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from .models import Post, Review
+
+
+class CommunityLoginRedirectTests(TestCase):
+    def test_old_login_address_reaches_accounts_login(self):
+        for debug in (True, False):
+            with self.subTest(debug=debug), override_settings(DEBUG=debug):
+                self.assertRedirects(
+                    self.client.get(reverse('community:login')),
+                    reverse('accounts:login'),
+                )
+
+    def test_return_destination_is_preserved(self):
+        from urllib.parse import urlencode
+
+        query = urlencode({'next': reverse('community:post_create')})
+        self.assertRedirects(
+            self.client.get(reverse('community:login') + '?' + query),
+            reverse('accounts:login') + '?' + query,
+        )
+
+    def test_signed_in_user_reaches_dashboard(self):
+        user = get_user_model().objects.create_user(username='legacy-login-hiker')
+        self.client.force_login(user)
+        response = self.client.get(reverse('community:login'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.request['PATH_INFO'], reverse('accounts:account_detail'))
 
 
 class MergedCommunityFixTests(TestCase):

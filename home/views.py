@@ -20,3 +20,13 @@ def home(request):
     }
 
     return render(request, "home/home.html", context)
+
+
+def page_not_found(request, exception=None):
+    """Show a useful destination when a page or record cannot be found."""
+    return render(request, "home/404.html", {
+        "community_nav": {
+            "home": reverse("home"),
+            "hikes": reverse("hikes:list"),
+        },
+    }, status=404)

@@ -1,0 +1,112 @@
+.not-found {
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    min-height: 75vh;
+    padding: 64px 24px 80px;
+    background: radial-gradient(ellipse at 50% 45%, #183021 0%, #0c1710 70%);
+    color: #f6f6ee;
+    text-align: center;
+}
+
+.not-found-content {
+    width: 100%;
+    max-width: 640px;
+}
+
+.not-found-eyebrow {
+    margin: 0 0 12px;
+    color: #ebc535;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.not-found-code {
+    margin: 0;
+    color: #f3f2dc;
+    font-size: clamp(100px, 22vw, 170px);
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    line-height: 1;
+}
+
+.not-found-landscape {
+    display: block;
+    width: 100%;
+    max-width: 440px;
+    height: auto;
+    margin: -8px auto 28px;
+}
+
+.not-found h2 {
+    margin: 0 0 16px;
+    font-size: clamp(24px, 5vw, 36px);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.not-found-description {
+    max-width: 440px;
+    margin: 0 auto;
+    color: #b8c7ba;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.not-found-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.not-found-button {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    min-height: 48px;
+    padding: 12px 24px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.not-found-primary {
+    background: #ebc535;
+    color: #12281d;
+}
+
+.not-found-primary:hover {
+    background: #f5d559;
+}
+
+.not-found-secondary {
+    border-color: #526b56;
+    color: #f6f6ee;
+}
+
+.not-found-secondary:hover {
+    background: #244a30;
+}
+
+.not-found-button:focus-visible {
+    outline: 3px solid #f3f2dc;
+    outline-offset: 4px;
+}
+
+@media (max-width: 420px) {
+    .not-found {
+        padding: 48px 20px;
+    }
+
+    .not-found-actions {
+        flex-direction: column;
+    }
+}

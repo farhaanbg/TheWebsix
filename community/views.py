@@ -8,7 +8,6 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
 from django.db.models import Avg, Count
 from django.core.files.storage import default_storage
 from django.http import (HttpResponseBadRequest, HttpResponseForbidden,
@@ -238,14 +237,9 @@ def delete_post(request, pk):
     return render(request, 'community/deletepost.html', context)
 
 
-class CommunityLoginView(LoginView):
-    # Optional login page. A host project may use its own login instead.
-    template_name = 'community/login.html'
+class CommunityLoginView(generic.RedirectView):
+    """Keep older sign-in links working through the shared accounts login."""
 
-    def get_context_data(self, **kwargs):
-        context = super(CommunityLoginView, self).get_context_data(**kwargs)
-        context.update(page_context(self.request, ''))
-        return context
-
-    def get_default_redirect_url(self):
-        return reverse('community:community')
+    pattern_name = 'accounts:login'
+    query_string = True
+    permanent = False
