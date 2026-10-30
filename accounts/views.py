@@ -9,7 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeDoneView
 from django.db.models import Count
 from .forms import SignupForm, EditAccountForm, ProfileForm
-from .models import Moment, Comment, Booking, UserProfile
+from .models import Moment, Comment, UserProfile
+from bookings.models import Booking
 
 # -------------------------
 # SIGN UP
