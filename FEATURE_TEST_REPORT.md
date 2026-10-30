@@ -1,4 +1,34 @@
-# Current feature test report — 30 October 2026
+# Feature verification — 30 October 2026
+
+## Latest merge verification: fixed-accounts
+
+The `fixed-accounts` branch now integrates with the current main branch. The
+older audit below remains historical evidence, not a fresh audit of this merge.
+
+- Full Django suite: **49 tests passed**, including the hikes and home tests.
+- Django system checks, model/migration consistency and whitespace checks passed.
+- Dashboard posts, likes, comments and deletion now use community records.
+  New posts use the community form, including its image validation.
+- The shared navigation and photo-free posts render in dashboard tests.
+- Duplicate-email login no longer raises `MultipleObjectsReturned`; username
+  login remains available. The duplicate-email signup test is retained.
+- Dashboard comment rendering uses DOM text nodes for user text. Community
+  detail rendering escapes comment markup. Comment creation and listing now
+  return the same local-time formatting.
+- Ownership tests reject deletion of unrelated users' posts and comments.
+- The login-route conflict retains the existing configurable account login,
+  friendly 404 handling, home app, community editing and hikes redesign.
+
+The previous 71-check audit and browser checks were not rerun for this merge.
+No new browser or real email-delivery verification is claimed.
+
+Legacy `accounts.Moment` records are retained in the database, but the dashboard
+now displays `community.Post` records. The local database contained zero legacy
+moments when checked. Other databases containing legacy moments need a reviewed
+data migration before adopting the unified dashboard; this merge does not copy
+private account content into the public community feed automatically.
+
+## Earlier feature audit
 
 Verified the current code before committing the 404 page, legacy login redirect
 and hikes listing redesign. This report supersedes the issue status from 29 October.

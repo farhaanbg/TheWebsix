@@ -1,10 +1,10 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ profile_user.get_full_name|default:profile_user.username }} - Trail Explorer Dashboard</title>
+{% extends "community/base.html" %}
+{% load static %}
+
+{% block title %}{{ profile_user.get_full_name|default:profile_user.username }} - Trail Explorer Dashboard{% endblock %}
+
+{% block extra_css %}
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,7 +25,7 @@
       --card-bg: #ffffff;
     }
 
-    body {
+    .account-dashboard {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: var(--bg-canvas);
       color: var(--text-main);
@@ -66,11 +66,19 @@
     .animate-toast {
       animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-  </style>
-</head>
 
-<body class="min-h-screen antialiased flex flex-col md:flex-row">
+    .da-shell-content {
+        background: transparent;
+        color: inherit;
+        max-width: none;
+        padding: 0;
+        margin: 0;
+    }
+</style>
+{% endblock extra_css %}
 
+{% block content %}
+<div class="account-dashboard min-h-screen antialiased flex flex-col md:flex-row">
   <!-- Sidebar Navigation -->
   <aside class="w-full md:w-64 bg-[#e5ebe3] border-r border-[#d2dcd0] flex-shrink-0 flex flex-col justify-between p-5 min-h-screen">
 
@@ -462,20 +470,20 @@
 
         <div class="moment-image-wrapper h-56 bg-slate-100 relative">
 
-          <img
-            src="{{ moment.image.url }}"
-            alt="{{ moment.title }}"
-            class="moment-image w-full h-full object-cover"
-          />
+          
+          {% if moment.image %}
+            <img
+              src="{{ moment.image.url }}"
+              alt="{{ moment.caption }}"
+              class="moment-image w-full h-full object-cover"
+            />
+          {% else %}
+            <div class="moment-image w-full h-full flex items-center justify-center text-gray-500">
+              No image available
+            </div>
+          {% endif %}
 
-          <span class="absolute top-3 left-3 bg-black/50 backdrop-blur-md text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
-
-            <i data-lucide="tag" class="w-3 h-3 text-[#ebb82d]"></i>
-
-            {{ moment.tag }}
-
-          </span>
-          {% if moment.user == request.user %}
+          {% if moment.author == request.user %}
           <button
             type="button"
             onclick="deleteMoment('{{ moment.id }}')"
@@ -494,7 +502,7 @@
           <div>
 
             <h3 class="font-outfit text-lg font-bold text-[#12281d] mb-1">
-              {{ moment.title }}
+              {{ moment.caption|truncatechars:60 }}
             </h3>
 
             <p class="text-xs text-[#5d6e64] line-clamp-2">
@@ -625,113 +633,7 @@
   </main>
 
 
-  <!-- Upload New Moment Modal -->
-  <div id="momentModal"
-       class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-[#e1e7e2]">
-
-      <div class="flex items-center justify-between border-b border-[#f0f4f1] pb-4 mb-4">
-
-        <h3 class="font-outfit text-xl font-bold text-[#12281d]">
-          Share a Hiking Moment
-        </h3>
-
-        <button
-          onclick="closeNewMomentModal()"
-          class="text-[#5d6e64] hover:text-[#12281d]">
-
-          <i data-lucide="x" class="w-5 h-5"></i>
-
-        </button>
-
-      </div>
-
-
-      <form
-        method="POST"
-        action="{% url 'accounts:dashboard' %}"
-        enctype="multipart/form-data"
-        class="space-y-4">
-
-        {% csrf_token %}
-
-
-        <div>
-
-          <label class="block text-xs font-bold uppercase text-[#5d6e64] mb-1">
-            Title
-          </label>
-
-          <input
-            type="text"
-            name="title"
-            required
-            class="w-full px-3.5 py-2.5 bg-[#f4f6f3] border border-[#d2dcd0] rounded-xl text-sm focus:outline-none focus:border-[#2d5a43]"
-          />
-
-        </div>
-
-
-        <div>
-
-          <label class="block text-xs font-bold uppercase text-[#5d6e64] mb-1">
-            Select Photo
-          </label>
-
-          <input
-            type="file"
-            name="image_file"
-            accept="image/*"
-            required
-            class="w-full px-3.5 py-2 bg-[#f4f6f3] border border-[#d2dcd0] rounded-xl text-sm text-[#5d6e64] file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#2d5a43] file:text-white hover:file:bg-[#1f4230]"
-          />
-
-        </div>
-
-
-        <div>
-
-          <label class="block text-xs font-bold uppercase text-[#5d6e64] mb-1">
-            Caption
-          </label>
-
-          <textarea
-            name="caption"
-            rows="3"
-            class="w-full px-3.5 py-2.5 bg-[#f4f6f3] border border-[#d2dcd0] rounded-xl text-sm focus:outline-none focus:border-[#2d5a43]">
-          </textarea>
-
-        </div>
-
-
-        <div class="flex items-center justify-end gap-3 pt-2">
-
-          <button
-            type="button"
-            onclick="closeNewMomentModal()"
-            class="px-4 py-2.5 text-xs font-semibold text-[#5d6e64] hover:bg-slate-100 rounded-xl">
-
-            Cancel
-
-          </button>
-
-
-          <button
-            type="submit"
-            class="px-5 py-2.5 bg-[#2d5a43] hover:bg-[#1f4230] text-white text-xs font-bold rounded-xl shadow-md transition-all">
-
-            Post Moment
-
-          </button>
-
-        </div>
-
-      </form>
-
-    </div>
-
-  </div>
+  
 
 
   <!-- Comments Window / Modal -->
@@ -840,22 +742,12 @@
     }
 
 
+
+
     function openNewMomentModal() {
-
-      document
-        .getElementById('momentModal')
-        .classList.remove('hidden');
-
+        window.location.href = "{% url 'community:post_create' %}";
     }
 
-
-    function closeNewMomentModal() {
-
-      document
-        .getElementById('momentModal')
-        .classList.add('hidden');
-
-    }
 
     let activeCommentMomentId = null;
 
@@ -913,44 +805,48 @@
               'p-3 bg-[#f4f6f3] rounded-xl flex items-start justify-between gap-3 border border-[#e1e7e2]';
 
 
-            commentDiv.innerHTML = `
 
-              <div>
+            const contentDiv = document.createElement('div');
 
-                <div class="flex items-center gap-2">
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'flex items-center gap-2';
 
-                  <span class="text-xs font-bold text-[#12281d]">
-                    ${comment.user}
-                  </span>
+            const userSpan = document.createElement('span');
+            userSpan.className = 'text-xs font-bold text-[#12281d]';
+            userSpan.textContent = comment.user;
 
-                  <span class="text-[10px] text-[#5d6e64]">
-                    ${comment.created_at}
-                  </span>
+            const dateSpan = document.createElement('span');
+            dateSpan.className = 'text-[10px] text-[#5d6e64]';
+            dateSpan.textContent = comment.created_at;
 
-                </div>
+            headerDiv.appendChild(userSpan);
+            headerDiv.appendChild(dateSpan);
 
-                <p class="text-xs text-[#1d2b23] mt-1">
-                  ${comment.text}
-                </p>
+            const textParagraph = document.createElement('p');
+            textParagraph.className = 'text-xs text-[#1d2b23] mt-1';
+            textParagraph.textContent = comment.text;
 
-              </div>
+            contentDiv.appendChild(headerDiv);
+            contentDiv.appendChild(textParagraph);
 
+            commentDiv.appendChild(contentDiv);
 
-              ${comment.can_delete ? `
+            if (comment.can_delete) {
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'text-rose-500 hover:text-rose-700 p-1';
+                deleteButton.type = 'button';
+                deleteButton.addEventListener('click', () => {
+                    deleteComment(comment.id, momentId);
+                });
 
-                <button
-                  onclick="deleteComment(${comment.id}, ${momentId})"
-                  class="text-rose-500 hover:text-rose-700 p-1">
+                const trashIcon = document.createElement('i');
+                trashIcon.setAttribute('data-lucide', 'trash-2');
+                trashIcon.className = 'w-4 h-4';
 
-                  <i data-lucide="trash-2"
-                     class="w-4 h-4">
-                  </i>
+                deleteButton.appendChild(trashIcon);
+                commentDiv.appendChild(deleteButton);
+            }
 
-                </button>
-
-              ` : ''}
-
-            `;
 
 
             container.appendChild(commentDiv);
@@ -1276,7 +1172,6 @@
   });
 </script>
 
-</body>
-</html>
-```
+</div>
+{% endblock content %}
 
