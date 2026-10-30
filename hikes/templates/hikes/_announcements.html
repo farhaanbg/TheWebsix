@@ -1,0 +1,7 @@
+{% for announcement in announcements %}
+<article class="hike-announcement">
+    <h3>{{ announcement.title }}</h3>
+    <p>{{ announcement.created_at|date:"j M Y, H:i" }}{% if announcement.hike %} · <a href="{{ announcement.hike.get_absolute_url }}">{{ announcement.hike.title }}</a>{% else %} · General{% endif %}</p>
+    {{ announcement.body|linebreaks }}
+</article>
+{% empty %}<p>No announcements yet.</p>{% endfor %}

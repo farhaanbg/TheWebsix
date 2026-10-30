@@ -20,12 +20,20 @@
 
         {% if messages %}
             {% for message in messages %}
-                <p class="booking-message booking-message-success">
+                <p class="booking-message booking-message-{{ message.tags }}">
                     {{ message }}
                 </p>
             {% endfor %}
         {% endif %}
 
+        {% if notifications %}
+        <section class="booking-group" aria-label="Booking updates">
+            <h2>Booking updates</h2>
+            {% for notice in notifications %}<article class="my-booking-card">
+                <p>{{ notice.created_at|date:"j M Y, H:i" }}</p><p>{{ notice.message }}</p>
+            </article>{% endfor %}
+        </section>
+        {% endif %}
         <section class="booking-group">
             <h2>Current & Upcoming Bookings</h2>
 
@@ -111,10 +119,7 @@
                         {% endfor %}
                     </div>
 
-                    <a class="view-hike-button"
-                       href="{% url 'hikes:detail' booking.hike.pk %}">
-                        View Hike Details →
-                    </a>
+                    {% include "bookings/_booking_actions.html" %}
                 </article>
             {% empty %}
                 <p class="booking-empty">
@@ -179,10 +184,7 @@
                         {% endfor %}
                     </div>
 
-                    <a class="view-hike-button"
-                       href="{% url 'hikes:detail' booking.hike.pk %}">
-                        View Hike Details →
-                    </a>
+                    {% include "bookings/_booking_actions.html" %}
                 </article>
             {% empty %}
                 <p class="booking-empty">

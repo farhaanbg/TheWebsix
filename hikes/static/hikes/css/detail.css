@@ -1,0 +1,102 @@
+/* Detail layout follows the trail reference without changing the directory. */
+.hike-detail-page { --trail-panel: #142219; --trail-border: #2a3c2e; --trail-muted: #9bb49f; --trail-green: #3ba255; background: #0b1811; font-family: Arial, sans-serif; }
+.hike-detail-page .hikes-container { width: min(1216px, calc(100% - 64px)); }
+.trail-breadcrumb { border-bottom: 1px solid var(--trail-border); background: #132119; }
+.trail-breadcrumb .hikes-container { display: flex; justify-content: space-between; gap: 20px; padding: 16px 0; font-size: 13px; }
+.hike-detail-page .trail-breadcrumb a { color: #a1bba6; text-decoration: none; }
+.trail-breadcrumb > div > span { color: #9bb49f; font: 11px/1.5 monospace; text-align: right; }
+.trail-breadcrumb span span { padding: 0 12px; }
+.trail-alert { padding: 12px max(32px, calc((100% - 1216px) / 2)); color: #f8c5c0; background: #591f1c; font-size: 13px; }
+.trail-alert-update { background: #39341a; color: #f1df8c; }
+.hike-detail-page .hike-detail { padding-top: 40px; padding-bottom: 64px; }
+.hike-detail-page .hike-detail-grid { grid-template-columns: minmax(0, 2.45fr) minmax(280px, 1fr); gap: 46px; align-items: start; }
+.trail-main { min-width: 0; }
+.trail-gallery-stage { margin: 0; aspect-ratio: 2.08; background: #1b3021; border-radius: 9px; overflow: hidden; }
+.trail-gallery-stage > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.trail-thumbnails { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 36px) / 4); gap: 12px; overflow-x: auto; padding: 12px 0 6px; scrollbar-width: thin; scrollbar-color: #3b6947 #142219; }
+.trail-thumbnail { display: block; aspect-ratio: 2.5; border: 2px solid transparent; border-radius: 5px; overflow: hidden; opacity: .55; }
+.trail-thumbnail img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.trail-thumbnail.is-active { border-color: var(--trail-green); opacity: 1; }
+.trail-thumbnail:hover, .trail-thumbnail:focus-visible { opacity: 1; }
+.trail-no-photo { aspect-ratio: 2.08; background: radial-gradient(ellipse at top, #294e34, #142219); border: 1px solid var(--trail-border); border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #a4bea8; }
+.trail-no-photo > span { font-size: 68px; line-height: 1; }
+.trail-no-photo p { font: 12px monospace; }
+.trail-heading { margin-top: 36px; }
+.trail-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.hike-detail-page h1 { font-size: clamp(30px, 3.2vw, 44px); letter-spacing: -.025em; margin: 0 0 12px; overflow-wrap: anywhere; }
+.trail-subtitle { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; color: var(--trail-muted); font-size: 13px; }
+.trail-subtitle .hike-difficulty { font-size: 10px; padding: 3px 9px; }
+.trail-heading .hike-tags { margin: 16px 0 0; }
+.trail-heading .hike-tags span { font-size: 10px; }
+.trail-full-label { background: #591f1c; border: 1px solid #87352d; border-radius: 4px; color: #ffaaa0; padding: 5px 9px; font: 10px monospace; text-transform: uppercase; }
+.trail-status-reason { color: #d6d6b0; font-size: 13px; line-height: 1.6; }
+.trail-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 30px 0 0; }
+.trail-metrics > div { background: var(--trail-panel); border: 1px solid var(--trail-border); padding: 16px; border-radius: 9px; }
+.trail-metrics > div > span { color: var(--trail-green); font-size: 19px; }
+.trail-metrics dt { color: var(--trail-muted); text-transform: uppercase; font: 9px/1.5 monospace; letter-spacing: 1px; margin: 8px 0 6px; }
+.trail-metrics dd { margin: 0; color: #f0f0e6; font: 20px/1.2 Impact, 'Arial Narrow', sans-serif; overflow-wrap: anywhere; }
+.hike-detail-page .trail-section { margin-top: 42px; }
+.hike-detail-page .trail-section h2 { font-size: 22px; margin: 0 0 20px; }
+.hike-detail-page .hike-description { color: var(--trail-muted); font-size: 15px; line-height: 1.8; }
+.hike-description p { margin: 0 0 16px; }
+.trail-highlights { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.trail-highlights li { display: flex; gap: 12px; font-size: 14px; color: #d1d9cc; line-height: 1.6; }
+.trail-highlights span, .trail-location > p > span { color: var(--trail-green); }
+.trail-packing { display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; gap: 8px; }
+.trail-packing li { background: #203427; color: #bfd0bf; padding: 8px 13px; border-radius: 24px; font-size: 12px; }
+.trail-packing span { margin-right: 7px; color: #80a588; }
+.trail-guides { display: grid; gap: 12px; }
+.trail-guide { display: flex; align-items: start; gap: 18px; padding: 24px; border: 1px solid var(--trail-border); background: var(--trail-panel); border-radius: 9px; }
+.trail-guide-avatar { flex: 0 0 56px; height: 56px; border: 1px solid #2c5336; border-radius: 50%; display: grid; place-items: center; background: #1c3223; color: var(--trail-green); font: 23px Impact, sans-serif; }
+.trail-guide h3 { margin: 3px 0 8px; text-transform: uppercase; font: 19px Impact, 'Arial Narrow', sans-serif; }
+.trail-guide p { margin: 0; color: var(--trail-muted); font-size: 13px; line-height: 1.7; white-space: pre-line; overflow-wrap: anywhere; }
+.trail-location { background: var(--trail-panel); border: 1px solid var(--trail-border); border-radius: 9px; padding: 24px; font-size: 13px; color: var(--trail-muted); }
+.trail-location p { line-height: 1.7; margin: 0 0 12px; }
+.trail-location strong { color: #d6dfd1; font-weight: 600; }
+.trail-location > p > span { margin-right: 12px; }
+.trail-map-label { min-height: 140px; border: 1px solid #304734; border-radius: 6px; background: #1a2e20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; text-align: center; font: 11px/1.6 monospace; margin: 18px 0 14px; }
+.trail-map-label span { color: var(--trail-green); font-size: 28px; }
+.hike-detail-page .trail-location a { color: #77ca8a; font: 11px monospace; }
+.trail-update { padding: 16px 0; border-bottom: 1px solid var(--trail-border); }
+.trail-update time { color: #a6c3ac; font-size: 12px; }
+.trail-update p { font-size: 14px; line-height: 1.6; color: #d1d9cc; }
+.trail-sidebar { min-width: 0; position: sticky; top: 24px; }
+.trail-booking { border: 1px solid var(--trail-border); background: var(--trail-panel); border-radius: 10px; overflow: hidden; }
+.trail-booking-inner { padding: 24px; }
+.trail-booking-closed { border-color: #67382b; }
+.trail-booking-banner { padding: 14px 18px; background: #591f1c; color: #ffaaa0; text-transform: uppercase; font: 12px Impact, sans-serif; letter-spacing: .3px; }
+.trail-price-row { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
+.trail-label { color: var(--trail-muted); font: 9px/1.5 monospace; text-transform: uppercase; letter-spacing: .6px; }
+.trail-price-row .trail-label { margin: 8px 0 6px; }
+.hike-detail-page .hike-detail-price { font-size: 42px; margin: 0 0 20px; }
+.trail-price-row .hike-difficulty { font-size: 10px; padding: 4px 8px; margin-top: 0; white-space: nowrap; }
+.trail-facts { margin: 0 0 24px; border: 1px solid var(--trail-border); border-radius: 6px; }
+.trail-facts > div { display: flex; justify-content: space-between; gap: 12px; padding: 13px 12px; border-bottom: 1px solid var(--trail-border); }
+.trail-facts > div:last-child { border: 0; }
+.trail-facts dt { display: flex; align-items: center; gap: 10px; color: var(--trail-muted); font: 9px/1.5 monospace; text-transform: uppercase; }
+.trail-facts dt span { color: var(--trail-green); font: 16px Arial, sans-serif; }
+.trail-facts dd { margin: 0; text-align: right; color: #e1e6db; font-size: 12px; font-weight: 600; overflow-wrap: anywhere; max-width: 65%; }
+.trail-availability p { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin: 0 0 8px; }
+.trail-availability strong { color: #78c88a; font: 10px/1.5 monospace; }
+.trail-availability meter { width: 100%; height: 8px; display: block; appearance: none; border: none; background: #203427; border-radius: 8px; overflow: hidden; }
+.trail-availability meter::-webkit-meter-bar { height: 8px; background: #203427; border: 0; }
+.trail-availability meter::-webkit-meter-optimum-value { background: var(--trail-green); }
+.trail-availability meter::-moz-meter-bar { background: var(--trail-green); }
+.trail-booking-closed .trail-availability meter, .trail-booking-closed meter::-webkit-meter-bar { background: #ad3f32; }
+.trail-booking-closed .trail-availability strong { color: #ffaaa0; }
+.hike-detail-page .trail-book-button { width: 100%; margin-top: 20px; min-height: 48px; font: 15px Impact, 'Arial Narrow', sans-serif; text-transform: uppercase; background: #379b50; }
+.trail-book-button:hover { background: #2c8040; }
+.trail-closed { background: #203025; padding: 15px; text-align: center; color: #b4c7b7; text-transform: uppercase; font: 13px Impact, sans-serif; border-radius: 5px; margin: 20px 0 0; }
+.trail-secondary-actions { display: flex; gap: 8px; border-top: 1px solid var(--trail-border); padding-top: 20px; margin-top: 20px; }
+.trail-secondary-actions form { display: flex; margin: 0; flex: 1; min-width: 0; }
+.trail-secondary-actions button, .hike-detail-page .trail-secondary-actions a { display: flex; align-items: center; justify-content: center; flex: 1; background: transparent; border: 1px solid #35543d; border-radius: 5px; padding: 10px 8px; color: #b4cfbb; font: 12px/1.5 Arial, sans-serif; cursor: pointer; text-decoration: none; }
+.trail-secondary-actions button:hover, .trail-secondary-actions a:hover { background: #223d2a; }
+.trail-secondary-actions [hidden] { display: none; }
+.trail-share-status { margin: 10px 0 0; font-size: 11px; color: #afc6b3; overflow-wrap: anywhere; }
+.trail-share-status:empty { display: none; }
+.trail-sidebar-note { display: flex; gap: 12px; padding: 18px; border: 1px solid var(--trail-border); border-radius: 9px; background: var(--trail-panel); color: var(--trail-muted); margin-top: 16px; font-size: 12px; line-height: 1.7; }
+.trail-sidebar-note > span { color: var(--trail-green); }
+.trail-sidebar-note p { margin: 0; }
+@media (max-width: 1050px) { .hike-detail-page .hike-detail-grid { gap: 24px; grid-template-columns: minmax(0, 1.8fr) minmax(280px, 1fr); } .trail-booking-inner { padding: 18px; } .trail-metrics { gap: 8px; } .trail-metrics > div { padding: 12px; } }
+@media (max-width: 800px) { .hike-detail-page .hikes-container { width: calc(100% - 40px); } .hike-detail-page .hike-detail-grid { grid-template-columns: 1fr; gap: 32px; } .trail-sidebar { position: static; } .trail-breadcrumb > div > span { display: none; } .hike-detail-page .hike-detail { padding-top: 24px; } .trail-alert { padding: 12px 20px; } }
+@media (max-width: 450px) { .trail-gallery-stage, .trail-no-photo { aspect-ratio: 1.5; } .trail-thumbnails { grid-auto-columns: calc((100% - 24px) / 3); } .trail-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .trail-guide, .trail-location { padding: 18px; } .trail-heading { margin-top: 26px; } .trail-guide { gap: 12px; } .trail-guide-avatar { flex-basis: 40px; height: 40px; } }

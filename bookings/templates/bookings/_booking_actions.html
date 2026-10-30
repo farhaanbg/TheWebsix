@@ -1,0 +1,12 @@
+<div class="my-booking-footer">
+    <a class="view-hike-button" href="{% url 'hikes:detail' booking.hike.pk %}">
+        View Hike Details →
+    </a>
+    {% if booking.can_cancel %}
+        <form method="post" action="{% url 'bookings:cancel_booking' booking.pk %}"
+              onsubmit="return confirm('Cancel this booking and release its spots?');">
+            {% csrf_token %}
+            <button class="cancel-booking-button" type="submit">Cancel booking</button>
+        </form>
+    {% endif %}
+</div>

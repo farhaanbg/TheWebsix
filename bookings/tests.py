@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from hikes.models import Hike
+from hikes.testing import published_hike
 from .models import Booking, BookingParticipant
 
 
@@ -22,7 +23,7 @@ class BookingTests(TestCase):
         )
 
         # Create a hike for testing.
-        cls.hike = Hike.objects.create(
+        cls.hike = published_hike(
             title="Le Morne Brabant Hike",
             location="Le Morne",
             district="Black River",

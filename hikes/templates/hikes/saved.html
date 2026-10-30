@@ -1,0 +1,12 @@
+{% extends 'community/base.html' %}{% load static %}
+{% block title %}Saved hikes | Dina Arobi{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'hikes/css/hikes.css' %}">{% endblock %}
+{% block content %}<div class="hikes-page"><section class="hikes-container hike-detail">
+<a href="{% url 'hikes:list' %}">Explore hikes</a><h1>Saved hikes</h1>
+{% for saved in saved_hikes %}<article class="hike-announcement">
+{% if saved.hike_id in visible_ids %}<h2><a href="{{ saved.hike.get_absolute_url }}">{{ saved.hike.title }}</a></h2>
+<p>{{ saved.hike.get_status_display }} · {{ saved.hike.date|date:"j M Y" }}</p>
+{% else %}<h2>Hike currently unavailable</h2>{% endif %}
+<form method="post" action="{% url 'hikes:unsave' saved.hike_id %}">{% csrf_token %}<button class="hikes-button" type="submit">Remove saved hike</button></form>
+</article>{% empty %}<p>You have no saved hikes yet.</p>{% endfor %}
+</section></div>{% endblock %}

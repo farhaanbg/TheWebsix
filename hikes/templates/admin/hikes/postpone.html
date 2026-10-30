@@ -1,0 +1,10 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <ul>{% for hike in hikes %}<li>{{ hike.title }}: {{ hike.date }} {{ hike.departure_time }}</li>
+        <input type="hidden" name="_selected_action" value="{{ hike.pk }}">{% endfor %}</ul>
+    <input type="hidden" name="action" value="postpone_hikes">
+    <button type="submit" name="apply" value="1">Save new schedule and notify customers</button>
+</form>
+{% endblock %}

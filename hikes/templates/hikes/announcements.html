@@ -1,0 +1,7 @@
+{% extends 'community/base.html' %}{% load static %}
+{% block title %}Announcements | Dina Arobi{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'hikes/css/hikes.css' %}">{% endblock %}
+{% block content %}<div class="hikes-page"><section class="hikes-container hike-detail">
+<a href="{% url 'hikes:list' %}">Back to hikes</a><h1>Announcements</h1>
+{% include 'hikes/_announcements.html' %}
+</section></div>{% endblock %}

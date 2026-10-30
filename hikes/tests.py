@@ -4,15 +4,16 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from .models import Hike
+from .testing import published_hike
 
 
 class HikePageTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.easy = Hike.objects.create(title='Tamarin Falls', location='Henrietta', district='Plaines Wilhems',
+        cls.easy = published_hike(title='Tamarin Falls', location='Henrietta', district='Plaines Wilhems',
             date=date(2027, 1, 8), difficulty='easy', price=200, distance_km=8.6,
             duration_minutes=210, capacity=25, reserved_spots=10, tags='Waterfall, Swimming')
-        cls.full = Hike.objects.create(title='Mountain Summit', location='Black River', district='Black River',
+        cls.full = published_hike(title='Mountain Summit', location='Black River', district='Black River',
             date=date(2027, 1, 1), difficulty='hard', price=450, distance_km=18.2,
             duration_minutes=420, capacity=10, reserved_spots=10)
 
@@ -69,6 +70,9 @@ class HikePageTests(TestCase):
             'difficulty': 'moderate', 'price': '300', 'distance_km': '12.4',
             'elevation_m': '847', 'duration_minutes': '270', 'capacity': '20',
             'reserved_spots': '0', '_save': 'Save',
+            'departure_time': '08:00', 'status': 'scheduled', 'is_published': 'on',
+            'guides': [self.easy.guides.first().pk],
+            'photos-TOTAL_FORMS': '0', 'photos-INITIAL_FORMS': '0',
         })
         self.assertEqual(response.status_code, 302)
         self.assertContains(self.client.get(reverse('hikes:list')), 'New admin hike')
@@ -82,7 +86,7 @@ class HomeSearchIntegrationTests(TestCase):
             "capacity": 10,
         }
 
-        cls.free = Hike.objects.create(
+        cls.free = published_hike(
             title="Coastal Walk",
             location="Flic en Flac",
             district="Black River",
@@ -91,7 +95,7 @@ class HomeSearchIntegrationTests(TestCase):
             **common,
         )
 
-        cls.waterfall = Hike.objects.create(
+        cls.waterfall = published_hike(
             title="Waterfall Trail",
             location="Henrietta",
             district="Plaines Wilhems",
@@ -100,7 +104,7 @@ class HomeSearchIntegrationTests(TestCase):
             **common,
         )
 
-        cls.expert = Hike.objects.create(
+        cls.expert = published_hike(
             title="Expert Ridge",
             location="Le Morne",
             district="Black River",

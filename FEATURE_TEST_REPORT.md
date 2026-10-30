@@ -1,6 +1,149 @@
 # Feature verification — 30 October 2026
 
-## Latest local merge verification: bookbooking
+## Latest local update: hike detail design and multiple photos
+
+- Rebuilt hike details from the local Easy and Sold Out reference images:
+  large gallery with thumbnails, title and tags, four trail metrics, description,
+  optional highlights/packing sections, guide cards, location and a booking panel.
+  Shared navigation and the hikes directory retain their existing layouts.
+- Added ordered `HikePhoto` records with optional captions, managed through
+  photo rows in the hike admin. The existing cover stays first and is preserved;
+  gallery-only, single-photo and no-photo details are supported.
+- Added optional highlights, packing items and meeting-point instructions.
+  No fictional guide credentials, cancellation policies, contact numbers or
+  waitlist actions are added to live hike data.
+- Existing booking eligibility, saved-hike actions, schedule history and
+  announcements remain available. Cancelled/full hikes retain closed states.
+- Full Django suite: **114 tests passed**. New checks cover gallery ordering,
+  existing-cover preservation, empty/single-photo cases, escaped optional text,
+  draft privacy, admin multi-photo upload/removal and invalid-image rejection.
+  Existing admin form submissions now include the photo formset metadata.
+- Desktop (1440px) and mobile (390px) visual checks used an isolated rendered
+  Django page with synthetic in-memory records and local project images.
+  Thumbnail clicks and keyboard navigation passed; all images loaded, no
+  JavaScript errors occurred, and mobile had no horizontal page overflow.
+  Share fallback displayed the page URL. Native sharing and clipboard delivery
+  on the running site were not verified; local preview networking was unavailable.
+- Backed up SQLite to `db.sqlite3-before-gallery-20261030` and applied
+  `hikes.0003` successfully. Migration-state consistency passed. Preview records
+  were not added to the local database, and the preview server was stopped.
+
+## Earlier local update: hike link appearance review
+
+- Reviewed the supplied regular-account and admin-account screenshots. The
+  regular-account screenshot shows purple links without the intended spacing;
+  the admin-account screenshot shows yellow, spaced links.
+- Checked `hikes/templates/hikes/list.html` and the hike stylesheets. Both
+  accounts use the same quick-link markup and styles; there is no role-based
+  colour rule. The current stylesheet sets non-button hike links to yellow
+  and the quick-link row to a 20px gap with 12px text.
+- The screenshots are consistent with default visited-link styling and an
+  older cached stylesheet in the regular-account browser. Caching is a likely
+  explanation, not a confirmed browser diagnosis. A hard refresh (`Ctrl+F5`)
+  was recommended; the resulting appearance has not been verified.
+- No application code changed for this review. No new browser checks or tests
+  were run for the appearance finding; the latest focused test result remains
+  the 75 passing hikes/bookings tests recorded below.
+
+## Earlier local update: demo cleanup and requirements review
+
+- Ran `python manage.py hike_demo --clear` successfully. Demo records, demo
+  accounts and copied demo assets were removed using the tracked manifest.
+- Verified zero hikes, guides, saved hikes, announcements, bookings,
+  participants and booking notifications remain. The two other user accounts
+  remain in the local database.
+- Rechecked the hikes scope against the functional requirements in the system
+  specification (pages 5–11). The public hike directory, filters, detail pages,
+  saved hikes, announcements and admin schedule/status management are present.
+- Focused Django suite: **75 hikes/bookings tests passed**, with no system-check
+  issues. Tests used a separate database and did not add local demo records.
+- Payment status and Scan-to-Pay instructions remain booking/payment work.
+  The public directory supports price filtering; the Django hike admin list
+  does not currently have a price filter.
+
+## Earlier local update: temporary demo data (subsequently removed)
+
+- Added local `[DEMO]` records with `python manage.py hike_demo`: 8 hikes,
+  3 guides, 6 bookings with participants, 3 saved hikes, 3 announcements and
+  2 private booking notifications. Scenarios include available/full, cancelled,
+  postponed, past, free and incomplete-draft hikes.
+- Added normal customer `demo_hiker` and scoped staff `demo_admin`, limited to
+  hikes/bookings admin permissions. Both accounts are synthetic local test data.
+- SQLite backup before seeding: `db.sqlite3-before-dummy-data-f91a2ab5`.
+- Six isolated helper tests passed: seed scenarios, repeat-run idempotence,
+  cleanup preserving unrelated records and capacity, account collisions,
+  manifest/label checks and the DEBUG-only restriction.
+- Authenticated local request checks returned HTTP 200 for the hikes directory,
+  saved hikes, announcements and My Bookings with the seeded records.
+- `python manage.py hike_demo --clear` removes tracked demo data, the copied
+  assets and the manifest. Existing accounts, unrelated records and uploaded
+  files are preserved. Cleanup was subsequently completed as recorded above.
+
+No data was sent externally, and nothing was staged, committed or pushed.
+
+## Earlier local update: remaining hike requirements
+
+All changes remain local, unstaged and uncommitted.
+
+- Full Django suite: **103 tests passed**. System checks, migration-state
+  consistency and whitespace checks passed.
+- Hikes have Scheduled, Postponed and Cancelled states. Cancellation closes
+  booking and cancels active reservations with capacity release. Postponement
+  keeps reservations. Schedule/status changes record old/new values, actor and
+  reason and create private in-app booking notifications in the same transaction.
+- Admin actions and ordinary admin schedule edits have regression coverage.
+  Actions require change permission; read-only staff cannot perform them.
+- The default directory, statistics and location options use upcoming published
+  hikes. An explicit archive scope includes past events. Same-day departure
+  times, fully booked visibility and cancelled-hike visibility are covered.
+- Multiple guide records replace the single text field. The migration test
+  verifies preservation of legacy guide names and reserved spots. Complete
+  legacy hikes stay public; incomplete hikes become drafts.
+- Publishing requires guides and a departure time. Public queries, detail
+  access and booking checks exclude incomplete or unpublished hikes.
+- Saved hikes have per-user ownership, unique user/hike pairs and protected
+  POST actions. Tests cover repeat saves, privacy, removal and CSRF enforcement.
+- General and hike-specific announcements support admin creation, editing and
+  deletion. Public visibility, draft privacy and escaped content are tested.
+- Browser checks used a separate in-memory database with synthetic records.
+  The listing, cancelled-hike detail and announcements page rendered correctly.
+  Preview servers were stopped and their sample records did not enter the
+  user's database.
+- Before applying hikes.0002 and bookings.0003 locally, the SQLite database was
+  backed up. Both migrations applied successfully. The database had no existing
+  hikes at that point. Legacy-data preservation was tested separately.
+
+Notifications appear in My Bookings; no real email or SMS was sent. Payment
+status and Scan-to-Pay instructions are outside these hike requirements.
+No simultaneous-request stress test or comprehensive device audit is claimed.
+
+## Earlier local update: booking cancellation and capacity
+
+These changes remain local and uncommitted.
+
+- Full Django suite: **84 tests passed**. System checks, model/migration
+  consistency and whitespace checks passed. No database migration is needed.
+- Owners can cancel bookings through a CSRF-protected POST action in My
+  Bookings. Other users, including staff using the customer endpoint, cannot
+  cancel someone else's booking. Staff use the admin interface instead.
+- Booking creation, status changes, spot edits and transfers between hikes
+  adjust reserved spots within the same transaction as the booking change.
+- Repeated cancellation, stale instances and deletion of cancelled bookings do
+  not release capacity twice. Confirmation does not reserve the same spots twice.
+- Admin single/bulk cancellation and deletion, reactivation, overbooking
+  rejection, transactional rollback and rebooking freed spots have regression
+  coverage. Direct queryset deletion also releases active reservations.
+- Reserved spots are read-only in the hike admin. Saving an older hike form
+  does not overwrite a newer reservation count. Existing manually entered
+  reservations remain intact, rather than resetting counters from booking totals.
+- Bulk creation and direct queryset updates of booking capacity/status fields
+  are rejected; callers must use the transactional model save path.
+
+Payment-status management, payment instructions, hike cancellation/postponement
+and notifications remain outside this update. No browser audit or simultaneous
+request stress test is claimed.
+
+## Earlier local merge verification: bookbooking
 
 The `bookbooking` branch integrates booking forms, participants, server-side
 price calculation, pending reservations and user-specific booking listings.

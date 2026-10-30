@@ -51,12 +51,27 @@ files such as `thewebsix/settings.py` and `thewebsix/urls.py` with the team.
 
 After pulling the hike pages, run `python manage.py migrate`. Sign in to
 `/admin/` with your local superuser and open **Hikes > Add hike**. Enter the
-trail information, date, price, difficulty, duration (in minutes), capacity
-and reserved spots. You can also upload a photo, add a guide name, description
-and comma-separated tags. A placeholder appears when no photo is uploaded.
+trail information, date, departure time, price, difficulty, duration (in minutes)
+and capacity. Create guide records under **Hikes > Guides**, then assign one or
+more guides. New hikes start as drafts. Set **Is published** after assigning
+guides and a departure time. Incomplete drafts are not public or bookable.
+Reserved spots are maintained automatically. You can also upload a photo,
+add a description and comma-separated tags. A placeholder appears without a photo.
 
-Saved hikes appear at `/hikes/`, with search, location/date/price/difficulty
-filters and sorting. Each card opens a basic detail page. Fully booked hikes
+Hike details support a cover photo plus additional gallery photos. In the hike
+admin, use the **Hike photos** rows to upload images, add optional captions and
+set their position (lower numbers first). Save the hike to apply additions,
+reordering or deletions. The existing image remains the cover and appears first;
+gallery-only hikes also display their photos on the detail page. Visitors can
+select thumbnails or use Left/Right, Home and End while a thumbnail is focused.
+Optional **Highlights** and **What to bring** fields accept one item per line;
+**Meeting point** supplies additional location instructions. Empty optional
+sections are hidden. Run `python manage.py migrate` after pulling this update.
+
+Published hikes appear at `/hikes/`, with search, location/date/price/difficulty
+filters and sorting. The default view shows upcoming departures in local time.
+Choose **All hikes and past events** to include older hikes. Statistics and
+location options follow the selected directory scope. Fully booked hikes
 remain visible. Signed-in users can book an upcoming hike from its detail page.
 Bookings support up to 20 participants, calculate prices on the server and
 reserve capacity while awaiting admin confirmation. Users can see their own
@@ -65,14 +80,58 @@ bookings at `/bookings/my-bookings/` and on their account dashboard.
 Run `python manage.py migrate` after merging the booking branch. The new
 `bookings.Booking` records drive the dashboard; older `accounts.Booking`
 records remain stored separately and are not migrated automatically.
-Cancellation with automatic capacity release, payment-status management and
-Scan-to-Pay instructions are still unfinished. Admin changes to booking status
-or deletion do not automatically reconcile reserved spots yet.
+Users can cancel their own bookings from My Bookings. Cancellation releases
+spots once; deleting an active booking also releases its spots. Admin status,
+spot-count and hike changes adjust capacity and recalculate the total when
+needed. Reactivating a booking checks available capacity and departure time.
+Admin bulk confirmation, cancellation and deletion use the same capacity rules.
+Previously entered manual reservations remain included in the stored counts.
+Payment-status management and Scan-to-Pay instructions are still unfinished.
+
+Use the hike admin actions to cancel a hike or postpone it to a new date/time.
+Cancellation closes booking and cancels active reservations transactionally;
+postponement retains reservations. Both record history and create private
+in-app notices in **My Bookings**. Editing a date/time directly also records a
+postponement. Cancelled hikes remain visible. Reopening a hike does not revive
+previously cancelled bookings automatically.
+
+The guide migration preserves existing names and reservation counts. Existing
+hikes with a guide and departure time stay published; incomplete records become
+drafts for the team to complete. No guide or schedule details are invented.
+
+Signed-in users can save or remove hikes from their detail pages and review
+them at `/hikes/saved/`. Published general and hike-specific announcements appear
+at `/hikes/announcements/` and on relevant hike details. Staff manage them under
+**Hikes > Announcements**. Notifications stay inside the application; this update
+does not send email or SMS.
+
+When extending booking code, create records individually and use `save()` for
+status, spots or hike changes. Direct queryset updates of those fields and bulk
+creation are rejected because they bypass capacity accounting. Queryset deletion
+is supported and releases the relevant reservations transactionally.
 
 No sample hikes are added automatically. Use the admin to create your own
 records. Run `python manage.py test hikes` to check the hike features.
 
 ## Before starting a new task
+
+### Temporary local test data
+
+Run `python manage.py hike_demo` to add clearly labelled `[DEMO]` records:
+eight hikes covering available, full, postponed, cancelled, past, free and draft
+states, three guides, six bookings with participants, saved hikes, announcements
+and private booking notifications. Repeating the command does not duplicate data.
+
+Sign in as `demo_hiker` to test customer features or `demo_admin` to test the
+hikes and bookings admin. Both use `TrailDemo!2026`. The admin account has only
+hikes/bookings permissions, and the command runs only with `DEBUG=True`.
+
+Remove these records later with `python manage.py hike_demo --clear`. Cleanup
+uses the local manifest in `media/temporary-hike-demo/manifest.json` and preserves
+unrelated records and files. Keep the `[DEMO]` labels and demo usernames while
+testing so cleanup can verify ownership. The media and manifest are untracked.
+
+### Starting a work branch
 
 From the repository folder, with your previous work committed and your virtual
 environment activated:

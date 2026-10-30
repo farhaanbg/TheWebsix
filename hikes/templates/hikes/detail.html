@@ -1,38 +1,75 @@
 {% extends "community/base.html" %}
 {% load static %}
 {% block title %}{{ hike.title }} | Dina Arobi{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'hikes/css/hikes.css' %}">{% endblock %}
-{% block content %}
-<div class="hikes-page"><article class="hikes-container hike-detail">
-    <a class="hikes-back" href="{% url 'hikes:list' %}">← Back to explore</a>
-    <div class="hike-detail-grid">
-        <div>
-            {% if hike.image %}<img class="hike-detail-image" src="{{ hike.image.url }}" alt="{{ hike.title }}">{% endif %}
-            <p class="hikes-eyebrow">{{ hike.location }}{% if hike.district %} · {{ hike.district }}{% endif %}</p>
-            <h1>{{ hike.title }}</h1>
-            <span class="hike-difficulty hike-difficulty-{{ hike.difficulty }}">{{ hike.get_difficulty_display }}</span>
-            <h2>About this hike</h2>
-            <div class="hike-description">{{ hike.description|default:"More details will be shared soon."|linebreaks }}</div>
-            <div class="hike-tags">{% for tag in hike.tag_list %}<span>{{ tag }}</span>{% endfor %}</div>
-        </div>
-        <aside class="hike-detail-summary" aria-label="Hike information">
-            <p class="hikes-eyebrow">Price per person</p><p class="hike-detail-price">Rs {{ hike.price|floatformat:"-2" }}</p>
-            <dl>
-                <div><dt>Date</dt><dd>{{ hike.date|date:"D, j M Y" }}</dd></div>
-                {% if hike.departure_time %}<div><dt>Departure</dt><dd>{{ hike.departure_time|time:"H:i" }}</dd></div>{% endif %}
-                {% if hike.guide %}<div><dt>Guide</dt><dd>{{ hike.guide }}</dd></div>{% endif %}
-                <div><dt>Distance</dt><dd>{{ hike.distance_km }} km</dd></div>
-                <div><dt>Elevation</dt><dd>{{ hike.elevation_m }} m</dd></div>
-                <div><dt>Duration</dt><dd>{{ hike.duration_display }}</dd></div>
-                <div><dt>Group size</dt><dd>{{ hike.capacity }} people</dd></div>
-            </dl>
-            <p>{% if hike.spots_remaining %}{{ hike.spots_remaining }} of {{ hike.capacity }} spots remaining{% else %}<strong>Fully booked</strong>{% endif %}</p>
-            {% if not hike.is_upcoming %}
-                <p class="hike-booking-note">Bookings are closed for this hike.</p>
-            {% elif hike.spots_remaining %}
-                <a class="hikes-button" href="{% url 'bookings:book_hike' hike.pk %}">Book this hike →</a>
-            {% endif %}
-        </aside>
-    </div>
-</article></div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'hikes/css/hikes.css' %}">
+<link rel="stylesheet" href="{% static 'hikes/css/detail.css' %}">
 {% endblock %}
+{% block content %}
+<div class="hikes-page hike-detail-page">
+    <div class="trail-breadcrumb"><div class="hikes-container"><a href="{% url 'hikes:list' %}">← Back to Explore</a><span>Explore <span aria-hidden="true">›</span> {{ hike.title }}</span></div></div>
+    {% if hike.status == 'cancelled' %}<div class="trail-alert">This hike has been cancelled. Bookings are closed.</div>{% elif not hike.spots_remaining %}<div class="trail-alert">This hike is <strong>fully booked.</strong> You can still explore the trail details below.</div>{% elif hike.status == 'postponed' %}<div class="trail-alert trail-alert-update">This hike has been postponed. The updated date and departure time are shown below.</div>{% endif %}
+    <article class="hikes-container hike-detail">
+        <div class="hike-detail-grid">
+            <div class="trail-main">
+                <section class="trail-gallery" aria-label="Hike photos">
+                    {% if gallery %}
+                    <figure class="trail-gallery-stage">
+                        <img id="trail-main-photo" src="{{ gallery.0.url }}" alt="{{ gallery.0.caption }}" fetchpriority="high">
+                        <figcaption class="hikes-sr-only" id="trail-photo-caption" aria-live="polite">Photo 1 of {{ gallery|length }}: {{ gallery.0.caption }}</figcaption>
+                    </figure>
+                    {% if gallery|length > 1 %}
+                    <div class="trail-thumbnails" aria-label="Choose a photo">
+                        {% for photo in gallery %}<a href="{{ photo.url }}" class="trail-thumbnail{% if forloop.first %} is-active{% endif %}" data-gallery-photo data-caption="{{ photo.caption }}" aria-label="View photo {{ forloop.counter }}: {{ photo.caption }}" {% if forloop.first %}aria-current="true"{% endif %} aria-controls="trail-main-photo"><img src="{{ photo.url }}" alt="" loading="lazy"></a>{% endfor %}
+                    </div>
+                    {% endif %}
+                    {% else %}<div class="trail-no-photo"><span aria-hidden="true">△</span><p>Trail photos coming soon</p></div>{% endif %}
+                </section>
+                <header class="trail-heading">
+                    <div class="trail-title-row"><h1>{{ hike.title }}</h1>{% if hike.status != 'scheduled' %}<span class="hike-status hike-status-{{ hike.status }}">{{ hike.get_status_display }}</span>{% elif not hike.spots_remaining %}<span class="trail-full-label">Fully booked</span>{% endif %}</div>
+                    {% if not hike.is_published %}<p class="hike-status">Draft preview</p>{% endif %}
+                    <div class="trail-subtitle"><span class="hike-difficulty hike-difficulty-{{ hike.difficulty }}">{{ hike.get_difficulty_display }}</span><span>⌖ {{ hike.location }}{% if hike.district %}, {{ hike.district }}{% endif %}</span></div>
+                    {% if hike.status_reason %}<p class="trail-status-reason">{{ hike.status_reason }}</p>{% endif %}
+                    <div class="hike-tags">{% for tag in hike.tag_list %}<span>{{ tag }}</span>{% endfor %}</div>
+                </header>
+                <dl class="trail-metrics">
+                    <div><span aria-hidden="true">➤</span><dt>Distance</dt><dd>{{ hike.distance_km }} km</dd></div>
+                    <div><span aria-hidden="true">↗</span><dt>Elevation</dt><dd>{{ hike.elevation_m }} m</dd></div>
+                    <div><span aria-hidden="true">◷</span><dt>Duration</dt><dd>{{ hike.duration_display }}</dd></div>
+                    <div><span aria-hidden="true">♧</span><dt>Max. group</dt><dd>{{ hike.capacity }} people</dd></div>
+                </dl>
+                <section class="trail-section"><h2>About this hike</h2><div class="hike-description">{{ hike.description|default:"More details will be shared soon."|linebreaks }}</div></section>
+                {% if hike.highlight_list %}<section class="trail-section"><h2>Highlights</h2><ul class="trail-highlights">{% for item in hike.highlight_list %}<li><span aria-hidden="true">⊙</span>{{ item }}</li>{% endfor %}</ul></section>{% endif %}
+                {% if hike.packing_list %}<section class="trail-section"><h2>What to bring</h2><ul class="trail-packing">{% for item in hike.packing_list %}<li><span aria-hidden="true">⚑</span>{{ item }}</li>{% endfor %}</ul></section>{% endif %}
+                <section class="trail-section"><h2>Assigned guides</h2><div class="trail-guides">{% for guide in hike.guides.all %}<article class="trail-guide"><span class="trail-guide-avatar" aria-hidden="true">{{ guide.name|first|upper }}</span><div><h3>{{ guide.name }}</h3>{% if guide.biography %}<p>{{ guide.biography }}</p>{% endif %}</div></article>{% empty %}<p>Guide information will be shared soon.</p>{% endfor %}</div></section>
+                <section class="trail-section"><h2>Location</h2><div class="trail-location"><p><span aria-hidden="true">⌖</span><strong>{{ hike.location }}{% if hike.district %}, {{ hike.district }}{% endif %}, Mauritius</strong></p>{% if hike.meeting_point %}<p>{{ hike.meeting_point }}</p>{% endif %}<div class="trail-map-label"><span aria-hidden="true">⌖</span>{{ hike.location }}{% if hike.district %} · {{ hike.district }}{% endif %}</div><a href="https://www.google.com/maps/search/?api=1&amp;query={{ hike.location|urlencode }}%2C%20{{ hike.district|urlencode }}%2C%20Mauritius" target="_blank" rel="noopener noreferrer">View location on map ↗</a></div></section>
+                {% if changes %}<section class="trail-section"><h2>Schedule updates</h2>{% for change in changes %}<div class="trail-update"><time>{{ change.created_at|date:"j M Y, H:i" }}</time><p>{{ change.new_status|capfirst }} · {{ change.new_date|date:"j M Y" }} {% if change.new_departure_time %}{{ change.new_departure_time|time:"H:i" }}{% endif %}{% if change.reason %} — {{ change.reason }}{% endif %}</p></div>{% endfor %}</section>{% endif %}
+                {% if announcements %}<section class="trail-section"><h2>Announcements</h2>{% include 'hikes/_announcements.html' %}</section>{% endif %}
+            </div>
+            <aside class="trail-sidebar" aria-label="Hike information">
+                <div class="trail-booking{% if not hike.spots_remaining or hike.status == 'cancelled' %} trail-booking-closed{% endif %}">
+                    {% if hike.status == 'cancelled' %}<div class="trail-booking-banner">Cancelled — bookings closed</div>{% elif not hike.spots_remaining %}<div class="trail-booking-banner">Fully booked — no spots remaining</div>{% endif %}
+                    <div class="trail-booking-inner">
+                        <div class="trail-price-row"><div><p class="trail-label">Price per person</p><p class="hike-detail-price">Rs {{ hike.price|floatformat:"-2" }}</p></div><span class="hike-difficulty hike-difficulty-{{ hike.difficulty }}">{{ hike.get_difficulty_display }}</span></div>
+                        <dl class="trail-facts">
+                            <div><dt><span aria-hidden="true">▦</span>Date</dt><dd>{{ hike.date|date:"D, j M Y" }}</dd></div>
+                            <div><dt><span aria-hidden="true">◷</span>Departure</dt><dd>{{ hike.departure_time|time:"h:i A"|default:"To be confirmed" }}</dd></div>
+                            <div><dt><span aria-hidden="true">♧</span>Guides</dt><dd>{{ hike.guide_names|default:"To be confirmed" }}</dd></div>
+                            <div><dt><span aria-hidden="true">➤</span>Distance</dt><dd>{{ hike.distance_km }} km</dd></div>
+                            <div><dt><span aria-hidden="true">↗</span>Elevation</dt><dd>{{ hike.elevation_m }} m</dd></div>
+                        </dl>
+                        {% if hike.status != 'cancelled' %}<div class="trail-availability"><p><span class="trail-label">Availability</span><strong>{{ hike.spots_remaining }} / {{ hike.capacity }} remaining</strong></p><meter min="0" max="{{ hike.capacity }}" value="{{ hike.spots_remaining }}" aria-label="Available spots">{{ hike.spots_remaining }} of {{ hike.capacity }} spots remaining</meter></div>{% endif %}
+                        {% if not hike.booking_open %}<p class="trail-closed">Bookings are closed for this hike.</p>{% elif hike.spots_remaining %}<a class="hikes-button trail-book-button" href="{% url 'bookings:book_hike' hike.pk %}">Book this hike — Rs {{ hike.price|floatformat:"-2" }}</a>{% else %}<p class="trail-closed">Fully booked</p>{% endif %}
+                        <div class="trail-secondary-actions">
+                            {% if request.user.is_authenticated %}<form method="post" action="{% if is_saved %}{% url 'hikes:unsave' hike.pk %}{% else %}{% url 'hikes:save' hike.pk %}{% endif %}">{% csrf_token %}<button type="submit">{% if is_saved %}♥ Remove saved hike{% else %}♡ Save for later{% endif %}</button></form>{% else %}<a href="{% url 'accounts:login' %}">♡ Sign in to save</a>{% endif %}
+                            <button type="button" id="trail-share" hidden>↗ Share</button>
+                        </div><p class="trail-share-status" id="trail-share-status" role="status"></p>
+                    </div>
+                </div>
+                <div class="trail-sidebar-note"><span aria-hidden="true">⊙</span><p>Check the trail details and departure time before booking. Schedule updates and announcements appear on this page.</p></div>
+            </aside>
+        </div>
+    </article>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'hikes/js/detail.js' %}" defer></script>{% endblock %}

@@ -106,3 +106,12 @@
     .hike-card-photo { height: 230px; }
     .hikes-stats { gap: 30px; }
 }
+
+.hike-status { font-size: 13px; font-weight: 700; color: #a9d8b3; }
+.hike-status-cancelled { color: #ffb1b6; }
+.hike-status-postponed { color: #ebc535; }
+.hike-announcement { padding: 22px 0; border-bottom: 1px solid #304134; overflow-wrap: anywhere; }
+.hike-announcement h3 { margin-bottom: 10px; }
+.hikes-page a:not(.hikes-button) { color: #ebc535; text-underline-offset: 3px; }
+.hikes-quick-links { display: flex; gap: 20px; margin: 0 0 26px; font-size: 12px; }
+.hikes-scope-field { margin-top: 18px; max-width: 320px; }

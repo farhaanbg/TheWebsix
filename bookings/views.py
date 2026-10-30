@@ -3,11 +3,12 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from hikes.models import Hike
 from .forms import BookingForm, ParticipantFormSet
@@ -18,8 +19,8 @@ from .models import Booking, BookingParticipant
 def book_hike(request, pk):
 
     # Find the selected hike.
-    hike = get_object_or_404(Hike, pk=pk)
-    if not hike.is_upcoming:
+    hike = get_object_or_404(Hike.objects.public(), pk=pk)
+    if not hike.booking_open:
         messages.error(request, "Bookings are closed for this hike.")
         return redirect("hikes:detail", pk=pk)
 
@@ -107,73 +108,32 @@ def book_hike(request, pk):
 
                 else:
 
-                    with transaction.atomic():
-
-                        # Lock where supported, then conditionally reserve capacity.
-                        locked_hike = Hike.objects.select_for_update().get(
-                            pk=pk
-                        )
-                        if not locked_hike.is_upcoming:
-                            messages.error(request, "Bookings are closed for this hike.")
-                            return redirect("hikes:detail", pk=pk)
-
-                        current_available = locked_hike.spots_remaining
-
-                        if selected_spots > current_available or not Hike.objects.filter(
-                            pk=pk,
-                            reserved_spots__lte=F("capacity") - selected_spots,
-                        ).update(reserved_spots=F("reserved_spots") + selected_spots):
-
-                            form.add_error(
-                                "spots",
-                                f"Only {current_available} spots remain. "
-                                "Please update your selection.",
-                            )
-
-                        else:
-
-                            # Calculate the final total using the
-                            # current hike price.
-                            total_price = (
-                                locked_hike.price
-                                * Decimal(selected_spots)
-                            ).quantize(Decimal("0.01"))
-
-                            # Create the booking.
+                    try:
+                        with transaction.atomic():
                             booking = Booking.objects.create(
                                 user=request.user,
-                                hike=locked_hike,
-                                customer_name=form.cleaned_data[
-                                    "customer_name"
-                                ],
+                                hike=hike,
+                                customer_name=form.cleaned_data["customer_name"],
                                 spots=selected_spots,
-                                payment_method=form.cleaned_data[
-                                    "payment_method"
-                                ],
-                                total_price=total_price,
+                                payment_method=form.cleaned_data["payment_method"],
                                 status=Booking.Status.PENDING,
                             )
-
-                            # Save participant information.
                             for participant_form in participant_formset:
-
                                 BookingParticipant.objects.create(
                                     booking=booking,
-                                    full_name=participant_form.cleaned_data[
-                                        "full_name"
-                                    ],
-                                    contact_number=participant_form.cleaned_data[
-                                        "contact_number"
-                                    ],
+                                    full_name=participant_form.cleaned_data["full_name"],
+                                    contact_number=participant_form.cleaned_data["contact_number"],
                                 )
-
-                            messages.success(
-                                request,
-                                f"Booking #{booking.pk} submitted. "
-                                "Confirmation is pending.",
-                            )
-
-                            return redirect("bookings:my_bookings")
+                    except ValidationError as error:
+                        form.add_error(None, "; ".join(error.messages))
+                        hike.refresh_from_db()
+                        available_spots = hike.spots_remaining
+                    else:
+                        messages.success(
+                            request,
+                            f"Booking #{booking.pk} submitted. Confirmation is pending.",
+                        )
+                        return redirect("bookings:my_bookings")
 
         else:
 
@@ -269,5 +229,19 @@ def my_bookings(request):
             "past_bookings": past_bookings,
             "community_nav": {"home": reverse("home")},
             "active_class": "bookings",
+            "notifications": request.user.booking_notifications.select_related('booking')[:50],
         },
     )
+
+
+@login_required
+@require_POST
+def cancel_booking(request, pk):
+    booking = get_object_or_404(Booking, pk=pk, user=request.user)
+    try:
+        booking.cancel()
+    except ValidationError as error:
+        messages.error(request, "; ".join(error.messages))
+    else:
+        messages.success(request, f"Booking #{booking.pk} cancelled. Your spots have been released.")
+    return redirect("bookings:my_bookings")
