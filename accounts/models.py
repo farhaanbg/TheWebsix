@@ -95,7 +95,7 @@ class Booking(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='bookings'
+        related_name='account_bookings'
     )
     reference_code = models.CharField(
         max_length=20,

@@ -27,7 +27,11 @@
                 <div><dt>Group size</dt><dd>{{ hike.capacity }} people</dd></div>
             </dl>
             <p>{% if hike.spots_remaining %}{{ hike.spots_remaining }} of {{ hike.capacity }} spots remaining{% else %}<strong>Fully booked</strong>{% endif %}</p>
-            <p class="hike-booking-note">Online booking is not available yet.</p>
+            {% if not hike.is_upcoming %}
+                <p class="hike-booking-note">Bookings are closed for this hike.</p>
+            {% elif hike.spots_remaining %}
+                <a class="hikes-button" href="{% url 'bookings:book_hike' hike.pk %}">Book this hike →</a>
+            {% endif %}
         </aside>
     </div>
 </article></div>

@@ -118,7 +118,7 @@
 
 
         <!-- My Bookings -->
-        <a href="#"
+        <a href="{% url 'bookings:my_bookings' %}"
            onclick="switchTab('bookings'); return false;"
            class="flex items-center justify-between px-3 py-2.5 rounded-lg text-[#32453a] hover:bg-[#d5ded2] transition-colors font-medium">
 
@@ -576,7 +576,7 @@
 
         <div class="flex items-center gap-4">
 
-          <div class="w-14 h-14 rounded-xl {% if booking.status == 'CONFIRMED' %}bg-emerald-50 text-[#2d5a43]{% else %}bg-amber-50 text-amber-700{% endif %} flex items-center justify-center flex-shrink-0">
+          <div class="w-14 h-14 rounded-xl {% if booking.status == 'confirmed' %}bg-emerald-50 text-[#2d5a43]{% else %}bg-amber-50 text-amber-700{% endif %} flex items-center justify-center flex-shrink-0">
 
             <i data-lucide="compass" class="w-7 h-7"></i>
 
@@ -587,26 +587,26 @@
 
             <div class="flex items-center gap-2">
 
-              <span class="{% if booking.status == 'CONFIRMED' %}bg-emerald-100 text-emerald-800{% else %}bg-amber-100 text-amber-800{% endif %} text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md">
+              <span class="{% if booking.status == 'confirmed' %}bg-emerald-100 text-emerald-800{% else %}bg-amber-100 text-amber-800{% endif %} text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md">
 
                 {{ booking.get_status_display }}
 
               </span>
 
               <span class="text-xs text-[#5d6e64]">
-                #{{ booking.reference_code }}
+                #{{ booking.pk }}
               </span>
 
             </div>
 
 
             <h4 class="font-outfit text-lg font-bold text-[#12281d] mt-0.5">
-              {{ booking.title }}
+              {{ booking.hike.title }}
             </h4>
 
 
             <p class="text-xs text-[#5d6e64]">
-              Date: {{ booking.date_str }} • Guide: {{ booking.guide_name }}
+              Date: {{ booking.hike.date|date:"j M Y" }} • Guide: {{ booking.hike.guide|default:"To be assigned" }}
             </p>
 
           </div>

@@ -1,0 +1,196 @@
+{% extends "community/base.html" %}
+{% load static %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{% static 'bookings/css/my_bookings.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="my-bookings-page">
+    <div class="my-bookings-container">
+
+        <header class="my-bookings-header">
+            <p class="my-bookings-eyebrow">YOUR ADVENTURES</p>
+            <h1>My Bookings</h1>
+            <p>Manage your upcoming and past hike reservations.</p>
+        </header>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="booking-message booking-message-success">
+                    {{ message }}
+                </p>
+            {% endfor %}
+        {% endif %}
+
+        <section class="booking-group">
+            <h2>Current & Upcoming Bookings</h2>
+
+            {% for booking in current_bookings %}
+                <article class="my-booking-card">
+                    <div class="my-booking-heading">
+                        <div>
+                            <p class="booking-reference">
+                                BOOKING #{{ booking.pk }}
+                            </p>
+                            <h3>{{ booking.hike.title }}</h3>
+                            <p class="booking-location">
+                                {{ booking.hike.location }}
+                                {% if booking.hike.district %}
+                                    · {{ booking.hike.district }}
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <span class="booking-status status-{{ booking.status }}">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+
+                    <div class="booking-details-grid">
+                        <div class="booking-detail">
+                            <span>Hike date</span>
+                            <strong>{{ booking.hike.date|date:"D, j M Y" }}</strong>
+                        </div>
+
+                        <div class="booking-detail">
+                            <span>Departure time</span>
+                            <strong>
+                                {% if booking.hike.departure_time %}
+                                    {{ booking.hike.departure_time|time:"H:i" }}
+                                {% else %}
+                                    Not specified
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div class="booking-detail">
+                            <span>Difficulty</span>
+                            <strong>{{ booking.hike.get_difficulty_display|default:booking.hike.difficulty }}</strong>
+                        </div>
+
+                        <div class="booking-detail">
+                            <span>Number of spots</span>
+                            <strong>{{ booking.spots }}</strong>
+                        </div>
+
+                        <div class="booking-detail">
+                            <span>Price per person</span>
+                            <strong>Rs {{ booking.hike.price|floatformat:2 }}</strong>
+                        </div>
+
+                        <div class="booking-detail">
+                            <span>Total price</span>
+                            <strong>Rs {{ booking.total_price|floatformat:2 }}</strong>
+                        </div>
+
+                        <div class="booking-detail">
+                            <span>Payment method</span>
+                            <strong>{{ booking.get_payment_method_display }}</strong>
+                        </div>
+
+                        <div class="booking-detail">
+                            <span>Booking submitted</span>
+                            <strong>{{ booking.created_at|date:"j M Y, H:i" }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="participants-list">
+                        <h4>Participants</h4>
+
+                        {% for participant in booking.participants.all %}
+                            <div class="participant-summary">
+                                <strong>{{ forloop.counter }}. {{ participant.full_name }}</strong>
+                                <span>{{ participant.contact_number }}</span>
+                            </div>
+                        {% empty %}
+                            <p>No participant details available.</p>
+                        {% endfor %}
+                    </div>
+
+                    <a class="view-hike-button"
+                       href="{% url 'hikes:detail' booking.hike.pk %}">
+                        View Hike Details →
+                    </a>
+                </article>
+            {% empty %}
+                <p class="booking-empty">
+                    You have no current or upcoming bookings.
+                </p>
+            {% endfor %}
+        </section>
+
+        <section class="booking-group">
+            <h2>Past Bookings</h2>
+
+            {% for booking in past_bookings %}
+                <article class="my-booking-card">
+                    <div class="my-booking-heading">
+                        <div>
+                            <p class="booking-reference">
+                                BOOKING #{{ booking.pk }}
+                            </p>
+                            <h3>{{ booking.hike.title }}</h3>
+                            <p class="booking-location">
+                                {{ booking.hike.location }}
+                            </p>
+                        </div>
+
+                        <span class="booking-status status-{{ booking.status }}">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+
+                    <div class="booking-details-grid">
+                        <div class="booking-detail">
+                            <span>Hike date</span>
+                            <strong>{{ booking.hike.date|date:"D, j M Y" }}</strong>
+                        </div>
+
+                        <div class="booking-detail">
+                            <span>Spots booked</span>
+                            <strong>{{ booking.spots }}</strong>
+                        </div>
+
+                        <div class="booking-detail">
+                            <span>Total price</span>
+                            <strong>Rs {{ booking.total_price|floatformat:2 }}</strong>
+                        </div>
+
+                        <div class="booking-detail">
+                            <span>Payment method</span>
+                            <strong>{{ booking.get_payment_method_display }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="participants-list">
+                        <h4>Participants</h4>
+
+                        {% for participant in booking.participants.all %}
+                            <div class="participant-summary">
+                                <strong>{{ forloop.counter }}. {{ participant.full_name }}</strong>
+                                <span>{{ participant.contact_number }}</span>
+                            </div>
+                        {% empty %}
+                            <p>No participant details available.</p>
+                        {% endfor %}
+                    </div>
+
+                    <a class="view-hike-button"
+                       href="{% url 'hikes:detail' booking.hike.pk %}">
+                        View Hike Details →
+                    </a>
+                </article>
+            {% empty %}
+                <p class="booking-empty">
+                    You have no past bookings.
+                </p>
+            {% endfor %}
+        </section>
+
+    </div>
+</div>
+{% endblock %}

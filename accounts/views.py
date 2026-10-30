@@ -10,7 +10,8 @@ from django.contrib.auth.views import PasswordChangeDoneView
 from django.db.models import Count
 from django.urls import reverse
 from .forms import SignupForm, EditAccountForm, ProfileForm
-from .models import Booking, UserProfile
+from .models import UserProfile
+from bookings.models import Booking
 from community.models import Post, PostLike, Comment as CommunityComment
 from django.utils import timezone
 # -------------------------
@@ -84,7 +85,7 @@ def dashboard_view(request):
     ).order_by("-created_at", "-pk")
 
     # Get the user's bookings
-    bookings = Booking.objects.filter(user=user)
+    bookings = Booking.objects.filter(user=user).select_related("hike")
 
     # Count all likes on the user's posts
     total_likes = sum(post.likes_count for post in posts)

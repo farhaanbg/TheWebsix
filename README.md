@@ -57,8 +57,17 @@ and comma-separated tags. A placeholder appears when no photo is uploaded.
 
 Saved hikes appear at `/hikes/`, with search, location/date/price/difficulty
 filters and sorting. Each card opens a basic detail page. Fully booked hikes
-remain visible. Reserved spots are managed manually for now; these pages do
-not create bookings or connect to the separate account booking model yet.
+remain visible. Signed-in users can book an upcoming hike from its detail page.
+Bookings support up to 20 participants, calculate prices on the server and
+reserve capacity while awaiting admin confirmation. Users can see their own
+bookings at `/bookings/my-bookings/` and on their account dashboard.
+
+Run `python manage.py migrate` after merging the booking branch. The new
+`bookings.Booking` records drive the dashboard; older `accounts.Booking`
+records remain stored separately and are not migrated automatically.
+Cancellation with automatic capacity release, payment-status management and
+Scan-to-Pay instructions are still unfinished. Admin changes to booking status
+or deletion do not automatically reconcile reserved spots yet.
 
 No sample hikes are added automatically. Use the admin to create your own
 records. Run `python manage.py test hikes` to check the hike features.

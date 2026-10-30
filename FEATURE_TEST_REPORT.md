@@ -1,6 +1,30 @@
 # Feature verification — 30 October 2026
 
-## Latest merge verification: fixed-accounts
+## Latest local merge verification: bookbooking
+
+The `bookbooking` branch integrates booking forms, participants, server-side
+price calculation, pending reservations and user-specific booking listings.
+The merge is local only; no GitHub push is part of this update.
+
+- Full Django suite: **65 tests passed**, including account, community, hikes
+  and home regression tests. The old unavailable-booking assertion now checks
+  that full hikes do not offer a booking link.
+- Additional checks cover blank or mismatched participants, the 20-person
+  limit, full/past/departed hikes, dashboard integration and transaction rollback.
+- Capacity reservation uses a conditional database update within the booking
+  transaction, in addition to row locking where the database supports it.
+- The existing account/community fixes, shared profile link, site footer,
+  availability display and hikes styles remain in place.
+- The dashboard uses the new booking model and its related hike fields.
+- Database migrations and model/migration consistency are checked locally.
+
+Cancellation with capacity release, payment-status management and payment/QR
+instructions remain incomplete. Admin status edits and deletions do not
+automatically reconcile hike capacity. No concurrent-request stress test,
+real payment transaction, browser audit or notification delivery is claimed.
+Legacy account booking records remain stored separately from new bookings.
+
+## Earlier merge verification: fixed-accounts
 
 The `fixed-accounts` branch now integrates with the current main branch. The
 older audit below remains historical evidence, not a fresh audit of this merge.

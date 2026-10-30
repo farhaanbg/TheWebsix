@@ -49,7 +49,7 @@ class HikePageTests(TestCase):
         response = self.client.get(self.full.get_absolute_url())
         self.assertContains(response, 'Mountain Summit')
         self.assertContains(response, 'Fully booked')
-        self.assertContains(response, 'Online booking is not available yet.')
+        self.assertNotContains(response, 'Book this hike')
         self.assertEqual(self.client.get(reverse('hikes:detail', args=[999])).status_code, 404)
 
     def test_capacity_validation(self):

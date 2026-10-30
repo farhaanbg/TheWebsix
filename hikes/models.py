@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 
 class Hike(models.Model):
@@ -45,6 +46,14 @@ class Hike(models.Model):
 
     def get_absolute_url(self):
         return reverse('hikes:detail', args=[self.pk])
+
+    @property
+    def is_upcoming(self):
+        now = timezone.localtime()
+        return self.date > now.date() or (
+            self.date == now.date()
+            and (self.departure_time is None or self.departure_time > now.time())
+        )
 
     @property
     def spots_remaining(self):

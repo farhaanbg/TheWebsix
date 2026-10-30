@@ -9,6 +9,7 @@ handler404 = 'home.views.page_not_found'
 urlpatterns = [
     path('', include('home.urls')),
     path('hikes/', include('hikes.urls')),
+    path('bookings/', include('bookings.urls')),
     path('admin/', admin.site.urls),
 
     # Registration, login and profiles
