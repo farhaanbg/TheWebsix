@@ -1,0 +1,262 @@
+
+{% extends "community/base.html" %}
+{% load static %}
+
+{% block title %}Book Your Hike | TheWebsix{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bookings/css/booking.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="booking-page">
+    <section class="booking-shell">
+
+        <!-- Page heading -->
+        <header class="booking-header">
+            <p class="eyebrow">THEWEBsix / HIKES</p>
+            <h1>Book Your Hike</h1>
+            <p class="header-description">
+                Your next adventure starts here.
+            </p>
+        </header>
+
+        <!-- Selected hike banner -->
+        <section class="selected-hike">
+            <div>
+                <p class="section-kicker">YOUR SELECTED HIKE</p>
+                <h2>{{ hike.title }}</h2>
+
+                <div class="hike-meta">
+                    <span>{{ hike.location }}</span>
+                    <span>{{ hike.date|date:"d M Y" }}</span>
+                    <span>{{ available_spots }} spots available</span>
+                </div>
+            </div>
+
+            <div class="hike-price">
+                <span>PRICE PER PERSON</span>
+                <strong>Rs {{ hike.price|floatformat:2 }}</strong>
+            </div>
+        </section>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-box {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if available_spots > 0 %}
+
+        <form method="post" class="booking-form">
+            {% csrf_token %}
+
+	    <!-- Display general booking form errors -->
+    	    {% for error in form.non_field_errors %}
+        	<p class="field-error">{{ error }}</p>
+    	    {% endfor %}
+
+            <!-- Main booking details -->
+            <section class="form-panel">
+                <div class="panel-heading">
+                    <span class="step-number">01</span>
+                    <div>
+                        <h2>Booking Details</h2>
+                        <p>Tell us who is responsible for this booking.</p>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label for="{{ form.customer_name.id_for_label }}">
+                        Name
+                    </label>
+                    {{ form.customer_name }}
+
+                    {% for error in form.customer_name.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="field-group">
+                    <label for="{{ form.spots.id_for_label }}">
+                        How many spots to book?
+                    </label>
+                    {{ form.spots }}
+
+                    <small>
+                        Choose between 1 and {{ available_spots }}
+                        available spots, up to 20 participants per booking.
+                    </small>
+
+                    {% for error in form.spots.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" name="action" value="calculate" class="calculate-button">
+                    Calculate Total
+                </button>
+            </section>
+
+            <!-- Participant details -->
+            <section class="form-panel">
+                <div class="panel-heading">
+                    <span class="step-number">02</span>
+                    <div>
+                        <h2>Participant Details</h2>
+                        <p>
+                            Enter the name and contact number of each person
+                            attending the hike.
+                        </p>
+                    </div>
+                </div>
+
+                {{ participant_formset.management_form }}
+
+                {% for participant_form in participant_formset %}
+                    <article class="participant-card">
+
+                        <div class="field-group">
+                            <label for="{{ participant_form.full_name.id_for_label }}">
+                                Full name
+                            </label>
+
+                            {{ participant_form.full_name }}
+
+                            {% for error in participant_form.full_name.errors %}
+                                <p class="field-error">{{ error }}</p>
+                            {% endfor %}
+			    
+			    
+    				        {% for error in participant_form.non_field_errors %}
+        			            <p class="field-error">{{ error }}</p>
+    			    	    {% endfor %}
+			    
+                        </div>
+
+                        <div class="field-group">
+                            <label for="{{ participant_form.contact_number.id_for_label }}">
+                                Contact number
+                            </label>
+
+                            {{ participant_form.contact_number }}
+
+                            {% for error in participant_form.contact_number.errors %}
+                                <p class="field-error">{{ error }}</p>
+                            {% endfor %}
+
+                            {% for error in participant_formset.non_form_errors %}
+                                <p class="field-error">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                    </article>
+                {% endfor %}
+
+                
+            </section>
+
+            <!-- Payment selection -->
+            <section class="form-panel">
+                <div class="panel-heading">
+                    <span class="step-number">03</span>
+                    <div>
+                        <h2>Select Payment Method</h2>
+                        <p>Please select one payment method.</p>
+                    </div>
+                </div>
+
+                <div class="payment-options">
+                    {% for radio in form.payment_method %}
+                        <label class="payment-option">
+                            {{ radio.tag }}
+
+                            <span class="payment-option-content">
+                                <strong>{{ radio.choice_label }}</strong>
+
+                                {% if radio.data.value == "scan" %}
+                                    <small>Pay using Scan-to-Pay.</small>
+                                {% else %}
+                                    <small>Pay when you arrive.</small>
+                                {% endif %}
+                            </span>
+                        </label>
+                    {% endfor %}
+                </div>
+
+                {% for error in form.payment_method.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </section>
+
+            <!-- Price summary -->
+            <section class="price-summary">
+                <div class="price-row">
+                    <span>Price per person</span>
+                    <strong>Rs {{ hike.price|floatformat:2 }}</strong>
+                </div>
+
+                <div class="price-row">
+                    <span>Number of spots</span>
+                    <strong>{{ selected_spots }}</strong>
+                </div>
+
+                <div class="price-row total-row">
+                    <span>Total price</span>
+                    <strong>Rs {{ total_price|floatformat:2 }}</strong>
+                </div>
+
+                <p class="calculation-note">
+                    The total is calculated on the server when you select
+                    Calculate Total.
+                </p>
+            </section>
+
+            <!-- Booking status and confirmation -->
+            <section class="confirmation-panel">
+                <div class="status-heading">
+                    <span class="status-indicator"></span>
+                    <div>
+                        <strong>Booking Status</strong>
+                        <p>Confirmation pending</p>
+                    </div>
+                </div>
+
+                <p>
+                    Your booking will be submitted for confirmation.
+                    Please check the details before continuing.
+                </p>
+
+                <button type="submit" name="action" value="confirm" class="confirm-button">
+                    Confirm Booking
+                    <span aria-hidden="true">→</span>
+                </button>
+            </section>
+
+        </form>
+
+        {% else %}
+
+            <section class="unavailable-panel">
+                <h2>This hike is fully booked</h2>
+                <p>There are currently no spots available for this hike.</p>
+
+                <a href="{% url 'hikes:list' %}" class="back-button">
+                    Browse other hikes
+                </a>
+            </section>
+
+        {% endif %}
+
+        <footer class="booking-footer">
+            <a href="{% url 'hikes:detail' hike.pk %}">
+                ← Back to hike details
+            </a>
+            <span>THEWEBsix · Explore responsibly</span>
+        </footer>
+
+    </section>
+</main>
+{% endblock %}
