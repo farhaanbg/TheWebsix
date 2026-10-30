@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeDoneView
 from django.db.models import Count
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.cache import never_cache
 from .forms import SignupForm, EditAccountForm, ProfileForm
 from .models import UserProfile
 from bookings.models import Booking
@@ -37,9 +39,17 @@ def signup(request):
 # -------------------------
 # LOGIN
 # -------------------------
+@never_cache
 def login_view(request):
+    next_url = request.POST.get("next") or request.GET.get("next")
+    if not url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure()):
+        next_url = None
+
     if request.user.is_authenticated:
-        return redirect("accounts:account_detail")
+        return redirect(next_url or "accounts:account_detail")
 
     if request.method == "POST":
         username_or_email = request.POST.get("username")
@@ -60,11 +70,11 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("accounts:account_detail")
+            return redirect(next_url or "accounts:account_detail")
         else:
             messages.error(request, "Invalid username/email or password.")
 
-    return render(request, "accounts/login.html")
+    return render(request, "accounts/login.html", {"next": next_url or ""})
 
 
 
@@ -74,6 +84,7 @@ def login_view(request):
 # =========================
 
 @login_required
+@never_cache
 def dashboard_view(request):
     user = request.user
 
@@ -282,6 +293,7 @@ def delete_moment(request, moment_id):
 # LOGOUT
 # -------------------------
 @login_required
+@never_cache
 def logout_view(request):
     logout(request)
     return redirect("accounts:login")
