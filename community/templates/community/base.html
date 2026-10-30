@@ -34,18 +34,15 @@
                     {% endif %}
                     </li>
                     <li><a class="da-nav-link{% if active_class == 'hikes' %} active{% endif %}" href="{% url 'hikes:list' %}"{% if active_class == 'hikes' %} aria-current="page"{% endif %}>Hikes</a></li>
-                    <li>{% if community_nav.bookings %}<a class="da-nav-link" href="{{ community_nav.bookings }}">My Bookings</a>{% else %}<span class="da-nav-link" aria-disabled="true" title="Connect your existing Bookings URL">My Bookings</span>{% endif %}</li>
+                    <li><a class="da-nav-link{% if active_class == 'bookings' %} active{% endif %}" href="{% url 'bookings:my_bookings' %}"{% if active_class == 'bookings' %}aria-current="page"{% endif %}>My Bookings</a>
                     <li><a class="da-nav-link{% if active_class == 'community' %} active{% endif %}" href="{% url 'community:community' %}"{% if active_class == 'community' %} aria-current="page"{% endif %}>Community</a></li>
                     <li><a class="da-nav-link{% if active_class == 'reviews' %} active{% endif %}" href="{% url 'community:reviews' %}"{% if active_class == 'reviews' %} aria-current="page"{% endif %}>Reviews</a></li>
                 </ul>
                 {% endblock navbar %}
             </nav>
             <div class="da-navbar-tools">
-                {% if request.user.is_authenticated %}
-                    {% url 'accounts:account_detail' as profile_url %}
-                {% else %}
-                    {% url 'accounts:login' as profile_url %}
-                {% endif %}
+                {% url 'community:login' as fallback_login %}
+                {% firstof community_nav.profile login_url fallback_login as profile_url %}
                 <a class="da-navbar-avatar" href="{{ profile_url }}" aria-label="{% if request.user.is_authenticated %}Account{% else %}Sign in{% endif %}">{% if request.user.is_authenticated %}{{ request.user.get_username|first|upper }}{% else %}M{% endif %}</a>
             </div>
         </div>
@@ -55,9 +52,6 @@
             {% block content %}{% endblock %}
         {% endwith %}
     </main>
-    <footer class="da-footer">
-        © 2026 Dina Arobi Hikes. Professional hiking experiences across Mauritius.
-    </footer>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
