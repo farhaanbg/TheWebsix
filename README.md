@@ -1,7 +1,7 @@
 # TheWebsix
 
 University hiking website project using Django, SQLite and Django's default admin.
-The project has four apps: accounts, hikes, bookings and community.
+The project has six apps: accounts, hikes, bookings, community, home and qa.
 
 ## First-time setup (Windows PowerShell)
 
@@ -19,9 +19,8 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Open http://127.0.0.1:8000/ for the site or http://127.0.0.1:8000/admin/
-to log in with the superuser you created. The site initially shows Django's
-welcome page. Stop the server with `Ctrl+C`.
+Open http://127.0.0.1:8000/ for the home page or http://127.0.0.1:8000/admin/
+to log in with the superuser you created. Stop the server with `Ctrl+C`.
 
 If PowerShell blocks activation, run the following and try activation again:
 
@@ -40,12 +39,26 @@ to leave it.
 | `accounts/` | Registration and profiles using Django's built-in user model |
 | `hikes/` | Hikes, guides, saved hikes and announcements |
 | `bookings/` | Reservations, participants and payment status |
-| `community/` | Moments/posts, comments, likes, reviews and Q&A |
+| `community/` | Moments/posts, comments, likes and reviews |
+| `home/` | Home page, search integration and friendly missing-page handling |
+| `qa/` | Public questions, search, categories and staff answers |
 | `thewebsix/` | Shared project settings and main URL configuration |
 
 Inside each app, `models.py` defines data, `views.py` handles requests, and
 `admin.py` registers models with Django's admin. Coordinate changes to shared
 files such as `thewebsix/settings.py` and `thewebsix/urls.py` with the team.
+
+## Questions, reviews and login
+
+After pulling the Q&A update, run `python manage.py migrate`. Everyone can
+browse `/qa/`, search question titles/details/answers, and filter by category
+or answer status. Signed-in users can ask questions and delete their own.
+Staff with the appropriate Q&A permissions answer and hide/show questions
+under **Q&A > Questions** in the admin. Hidden questions are excluded publicly.
+
+Review owners and staff can edit or delete reviews at `/reviews/`; deletion
+requires confirmation and a POST request. Login resumes a supplied local
+`next` destination and rejects destinations on external hosts.
 
 ## Managing hikes
 

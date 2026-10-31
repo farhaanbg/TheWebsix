@@ -4,6 +4,45 @@ from django.urls import reverse
 from community.models import Post, PostLike, Comment as CommunityComment
 
 
+class LoginReturnDestinationTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username='return-hiker', password='ReturnPass!392')
+
+    def test_login_resumes_local_destination(self):
+        destination = reverse('qa:list') + '?show=unanswered'
+        response = self.client.post(reverse('accounts:login'), {
+            'username': self.user.username, 'password': 'ReturnPass!392',
+            'next': destination,
+        })
+        self.assertRedirects(response, destination)
+        self.assertIn('no-store', response['Cache-Control'])
+
+    def test_external_destinations_fall_back_to_dashboard(self):
+        for destination in ('https://example.org/', '//example.org/'):
+            with self.subTest(destination=destination):
+                self.client.logout()
+                response = self.client.post(reverse('accounts:login'), {
+                    'username': self.user.username, 'password': 'ReturnPass!392',
+                    'next': destination,
+                })
+                self.assertRedirects(response, reverse('accounts:account_detail'))
+
+    def test_signed_in_user_resumes_local_destination(self):
+        self.client.force_login(self.user)
+        self.assertRedirects(self.client.get(reverse('accounts:login'), {
+            'next': reverse('qa:list'),
+        }), reverse('qa:list'))
+
+    def test_failed_login_retains_destination(self):
+        response = self.client.post(reverse('accounts:login'), {
+            'username': self.user.username, 'password': 'wrong',
+            'next': reverse('qa:list'),
+        })
+        self.assertEqual(response.context['next'], reverse('qa:list'))
+        self.assertContains(response, 'name="next"')
+
+
 class AccountDashboardTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(username='hiker', password='test-password')

@@ -1,4 +1,50 @@
-# Feature verification — 30 October 2026
+# Feature verification — 31 October 2026
+
+## Current progress: latest main and Q&A integrated
+
+This section is the current status. All sections below are dated historical
+records; their statements about unfinished features, known errors and uncommitted
+work describe those earlier snapshots, not the current integration.
+
+- Fetched all remote branches on 31 October 2026. Fast-forwarded local `main`
+  from `9f6a4bb` to `origin/main` (`3b40d02`), including login-return fixes
+  (`ba252f0`) and review management (`3b40d02`).
+- Merged the new `origin/feature/qa` branch (`3d1f8d0`) in merge commit
+  `ef4a0f8`. No conflicts occurred. Every fetched remote branch tip is now an
+  ancestor of local `main`; no other branch has outstanding commits to merge.
+- Integration remains local; no push or deployment was performed. Existing
+  untracked `debug.log` and `tmp/` files were left untouched.
+
+| Area | Current progress |
+| --- | --- |
+| Accounts/login | Login preserves safe local `next` destinations, including for signed-in users; external destinations fall back to the dashboard. Login, dashboard and logout responses now disable caching. |
+| Reviews | Owners and staff can edit reviews and confirm deletion. Other users are forbidden; invalid ratings do not overwrite the saved review. |
+| Q&A | Public page, text search, categories and answered/unanswered filters are integrated. Signed-in users can ask and delete their own questions. Staff answer and moderate visibility in Django admin. |
+| Existing features | Home, accounts, community, hikes, galleries, saved hikes, announcements and booking capacity behavior retain passing regression coverage. |
+| Remaining work | Payment status and Scan-to-Pay instructions remain unfinished. Legacy account bookings/moments remain separate stored records, without automatic migration. |
+
+### Verification of this integration
+
+- Full Django suite: **135 tests passed**, including the branch's 12 Q&A tests
+  and 9 added integration tests for login destinations and review management.
+- Login checks cover local destinations, external-host rejection, authenticated
+  redirects, failed-login destination retention and the no-store response header.
+- Review checks cover owner editing, prefilled forms, invalid ratings, confirmation
+  before deletion, unrelated-user rejection, staff access and guest login redirects.
+- Q&A branch tests cover public reading, authentication, server-assigned ownership,
+  validation, duplicate questions, ownership on deletion, hidden questions,
+  answers/timestamps, admin attribution, search and category filtering.
+- Django system checks, migration-state consistency and whitespace checks passed.
+- Backed up the local database to `db.sqlite3-before-qa-20261031-153933`, then
+  applied `qa.0001_initial` successfully. No migrations remain pending.
+- README now documents Q&A setup and moderation, review management and login
+  return behavior. No browser/device audit, production deployment, real email
+  delivery or payment verification was performed for this integration.
+
+The old known-error table below is historical: duplicate-email login handling,
+comment text rendering, upload validation and local comment timestamps were
+addressed in the earlier fixed-accounts integration and retain regression coverage.
+This update does not claim a fresh comprehensive functional or browser audit.
 
 ## Latest local update: hike detail design and multiple photos
 

@@ -4,6 +4,61 @@ from django.urls import reverse
 from .models import Post, Review
 
 
+class ReviewManagementTests(TestCase):
+    def setUp(self):
+        self.owner = get_user_model().objects.create_user(username='review-owner')
+        self.other = get_user_model().objects.create_user(username='review-other')
+        self.review = Review.objects.create(
+            author=self.owner, name='Owner', rating=4, text='Lovely trail')
+        self.edit_url = reverse('community:review_edit', args=[self.review.pk])
+        self.delete_url = reverse('community:review_delete', args=[self.review.pk])
+        self.client.force_login(self.owner)
+
+    def test_owner_can_edit_review_and_invalid_rating_is_rejected(self):
+        response = self.client.get(self.edit_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['form'].initial['text'], 'Lovely trail')
+        response = self.client.post(self.edit_url, {
+            'name': 'Updated owner', 'rating': 5, 'text': 'Excellent trail',
+        })
+        self.assertRedirects(response, reverse('community:reviews'))
+        self.review.refresh_from_db()
+        self.assertEqual((self.review.rating, self.review.text), (5, 'Excellent trail'))
+        response = self.client.post(self.edit_url, {
+            'name': 'Owner', 'rating': 6, 'text': 'Invalid',
+        })
+        self.assertTrue(response.context['form'].errors)
+        self.review.refresh_from_db()
+        self.assertEqual(self.review.rating, 5)
+
+    def test_delete_confirmation_preserves_review_until_post(self):
+        self.assertEqual(self.client.get(self.delete_url).status_code, 200)
+        self.assertTrue(Review.objects.filter(pk=self.review.pk).exists())
+        self.assertRedirects(self.client.post(self.delete_url), reverse('community:reviews'))
+        self.assertFalse(Review.objects.filter(pk=self.review.pk).exists())
+
+    def test_other_user_cannot_edit_or_delete(self):
+        self.client.force_login(self.other)
+        for url in (self.edit_url, self.delete_url):
+            self.assertEqual(self.client.get(url).status_code, 403)
+            self.assertEqual(self.client.post(url, {}).status_code, 403)
+        self.assertTrue(Review.objects.filter(pk=self.review.pk).exists())
+
+    def test_staff_can_manage_reviews(self):
+        self.other.is_staff = True
+        self.other.save()
+        self.client.force_login(self.other)
+        self.assertEqual(self.client.get(self.edit_url).status_code, 200)
+        self.assertRedirects(self.client.post(self.delete_url), reverse('community:reviews'))
+
+    def test_guest_is_sent_to_login(self):
+        self.client.logout()
+        for url in (self.edit_url, self.delete_url):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 302)
+            self.assertIn(reverse('accounts:login'), response['Location'])
+
+
 class CommunityLoginRedirectTests(TestCase):
     def test_old_login_address_reaches_accounts_login(self):
         for debug in (True, False):
