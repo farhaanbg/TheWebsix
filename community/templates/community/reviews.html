@@ -81,6 +81,15 @@
                     <div class="da-review-list-meta"><div><span class="da-small-avatar" aria-hidden="true">{{ review.name|first|upper }}</span><strong>{{ review.name }}</strong></div><time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:'d/m/Y' }}</time></div>
                     <span class="da-review-stars" aria-label="{{ review.rating }} out of 5 stars">{% for star in star_values %}<span class="{% if star <= review.rating %}da-star-filled{% else %}da-star-empty{% endif %}" aria-hidden="true">*</span>{% endfor %}</span>
                     <p class="da-preserve-lines">{{ review.text }}</p>
+                    {% if request.user == review.author or request.user.is_staff %}
+                    <details class="da-review-menu">
+                        <summary aria-label="Review options" title="Review options"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></summary>
+                        <div class="da-review-menu-panel">
+                            <a href="{% url 'community:review_edit' review.pk %}"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m16.5 3.5 4 4L8 20H4v-4L16.5 3.5ZM14 6l4 4"/></svg>Edit</a>
+                            <a class="da-delete-button" href="{% url 'community:review_delete' review.pk %}"><svg class="da-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4-6v6M9 7V4h6v3l-1 13H9L8 7Z"/></svg>Delete</a>
+                        </div>
+                    </details>
+                    {% endif %}
                 </article>
                 {% empty %}<p class="da-muted">No reviews yet.</p>{% endfor %}
             </div>

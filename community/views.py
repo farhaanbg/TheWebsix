@@ -129,6 +129,46 @@ def add_review(request):
 
 @login_required(login_url=LOGIN_URL)
 @require_http_methods(['GET', 'POST'])
+def edit_review(request, pk):
+    review = get_object_or_404(Review, pk=pk)
+    if review.author != request.user and not request.user.is_staff:
+        return HttpResponseForbidden('You may only edit your own reviews.')
+
+    if request.method == 'POST':
+        form = AddReviewForm(request.POST)
+        if form.is_valid():
+            review.name = form.cleaned_data['name']
+            review.rating = form.cleaned_data['rating']
+            review.text = form.cleaned_data['text']
+            review.save(update_fields=['name', 'rating', 'text'])
+            return HttpResponseRedirect(reverse('community:reviews'))
+    else:
+        form = AddReviewForm(instance=review)
+
+    context = page_context(request, 'reviews')
+    context['form'] = form
+    context['review'] = review
+    return render(request, 'community/editreview.html', context)
+
+
+@login_required(login_url=LOGIN_URL)
+@require_http_methods(['GET', 'POST'])
+def delete_review(request, pk):
+    review = get_object_or_404(Review, pk=pk)
+    if review.author != request.user and not request.user.is_staff:
+        return HttpResponseForbidden('You may only delete your own reviews.')
+
+    if request.method == 'POST':
+        review.delete()
+        return HttpResponseRedirect(reverse('community:reviews'))
+
+    context = page_context(request, 'reviews')
+    context['review'] = review
+    return render(request, 'community/deletereview.html', context)
+
+
+@login_required(login_url=LOGIN_URL)
+@require_http_methods(['GET', 'POST'])
 def add_post(request):
     # Same explicit object creation as add_renter(); no form.save(commit=False).
     if request.method == 'POST':

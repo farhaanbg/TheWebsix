@@ -21,6 +21,16 @@ class AddReviewForm(forms.Form):
         widget=forms.Textarea(attrs={'class': 'da-input', 'rows': 3}),
     )
 
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.pop('instance', None)
+        super().__init__(*args, **kwargs)
+        if instance is not None:
+            self.initial.update({
+                'name': instance.name,
+                'rating': instance.rating,
+                'text': instance.text,
+            })
+
 
 class AddPostModelForm(ModelForm):
     # Like AddRenterModelForm: model, fields and widgets belong in class Meta.
