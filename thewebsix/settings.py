@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'bookings',
     'community.apps.CommunityConfig',
     'home.apps.HomeConfig',
+    'qa.apps.QaConfig',
 ]
 
 MIDDLEWARE = [
