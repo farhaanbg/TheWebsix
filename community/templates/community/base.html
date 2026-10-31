@@ -37,6 +37,7 @@
                     <li><a class="da-nav-link{% if active_class == 'bookings' %} active{% endif %}" href="{% url 'bookings:my_bookings' %}"{% if active_class == 'bookings' %} aria-current="page"{% endif %}>My Bookings</a></li>
                     <li><a class="da-nav-link{% if active_class == 'community' %} active{% endif %}" href="{% url 'community:community' %}"{% if active_class == 'community' %} aria-current="page"{% endif %}>Community</a></li>
                     <li><a class="da-nav-link{% if active_class == 'reviews' %} active{% endif %}" href="{% url 'community:reviews' %}"{% if active_class == 'reviews' %} aria-current="page"{% endif %}>Reviews</a></li>
+                    <li><a class="da-nav-link{% if active_class == 'qa' %} active{% endif %}" href="{% url 'qa:list' %}"{% if active_class == 'qa' %} aria-current="page"{% endif %}>Q&amp;A</a></li>
                 </ul>
                 {% endblock navbar %}
             </nav>

@@ -1,0 +1,104 @@
+{% extends "community/base.html" %}
+{% load static %}
+{% block title %}Q&amp;A | Dina Arobi Hikes{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'qa/css/qa.css' %}">{% endblock %}
+
+{% block content %}
+{# Inherits the navbar and footer from community/base.html; only this block changes. #}
+<section class="da-page qa-page" aria-labelledby="qa-title">
+    <div class="da-container">
+
+        <header class="qa-hero">
+            <h2 class="da-heading" id="qa-title">QUESTIONS &amp; ANSWERS</h2>
+            <p>Not sure what to bring, how hard a trail is or how to pay? Ask us — our guides answer every question.</p>
+            <div class="qa-stats">
+                <span><strong>{{ total_questions }}</strong> question{{ total_questions|pluralize }}</span>
+                <span><strong>{{ answered_count }}</strong> answered</span>
+            </div>
+        </header>
+
+        {% if request.GET.asked %}
+        <p class="qa-notice" role="status">Thanks! Your question is posted. A guide will answer it soon.</p>
+        {% endif %}
+
+        {# ---------- Ask a question (logged-in users only) ---------- #}
+        <div class="qa-ask" id="ask">
+            <h3>Ask a question</h3>
+            {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'qa:ask' %}" class="qa-form">
+                {% csrf_token %}
+                {% if form.non_field_errors %}<div class="qa-error">{{ form.non_field_errors }}</div>{% endif %}
+                {% for field in form %}
+                <div class="qa-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}<p class="qa-error">{{ error }}</p>{% endfor %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="da-button da-button-yellow da-button-compact">Post question</button>
+            </form>
+            {% else %}
+            <p class="qa-muted">You can read every question and answer without an account.
+                <a class="qa-link" href="{{ login_url }}">Log in</a> to ask your own.</p>
+            {% endif %}
+        </div>
+
+        {# ---------- Search and filters (GET, so the URL can be shared) ---------- #}
+        <form method="get" action="{% url 'qa:list' %}" class="qa-filters" role="search">
+            <input type="search" name="q" value="{{ search }}" class="da-input" placeholder="Search questions..." aria-label="Search questions">
+            <select name="category" class="da-input" aria-label="Category">
+                <option value="">All categories</option>
+                {% for value, label in categories %}
+                <option value="{{ value }}"{% if value == selected_category %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <select name="show" class="da-input" aria-label="Answered or not">
+                <option value="all"{% if show == 'all' %} selected{% endif %}>All questions</option>
+                <option value="answered"{% if show == 'answered' %} selected{% endif %}>Answered</option>
+                <option value="unanswered"{% if show == 'unanswered' %} selected{% endif %}>Waiting for answer</option>
+            </select>
+            <button type="submit" class="da-button da-button-green da-button-compact">Filter</button>
+            <a href="{% url 'qa:list' %}" class="qa-link">Reset</a>
+        </form>
+
+        {# ---------- The list of questions ---------- #}
+        <div class="qa-list">
+            {% for question in question_list %}
+            <article class="qa-card" id="question-{{ question.id }}">
+                <div class="qa-card-head">
+                    <span class="qa-avatar" aria-hidden="true">{{ question.author_initial }}</span>
+                    <div>
+                        <strong>{{ question.author_name }}</strong>
+                        <time datetime="{{ question.created_at|date:'c' }}">{{ question.created_at|date:'d/m/Y' }}</time>
+                    </div>
+                    <span class="qa-badge">{{ question.get_category_display }}</span>
+                </div>
+
+                <h4>{{ question.title }}</h4>
+                {% if question.details %}<p class="qa-details">{{ question.details|linebreaksbr }}</p>{% endif %}
+
+                {% if question.is_answered %}
+                <div class="qa-answer">
+                    <p class="qa-answer-by">Answered by {{ question.answered_by_name }}{% if question.answered_at %} · {{ question.answered_at|date:'d/m/Y' }}{% endif %}</p>
+                    <p>{{ question.answer|linebreaksbr }}</p>
+                </div>
+                {% else %}
+                <p class="qa-waiting">Waiting for an answer from our guides.</p>
+                {% endif %}
+
+                {# Only the owner sees the delete button; the view checks ownership again. #}
+                {% if request.user == question.author %}
+                <form method="post" action="{% url 'qa:delete' question.id %}" class="qa-delete"
+                      onsubmit="return confirm('Delete this question?');">
+                    {% csrf_token %}
+                    <button type="submit" class="qa-link qa-danger">Delete my question</button>
+                </form>
+                {% endif %}
+            </article>
+            {% empty %}
+            <p class="qa-muted">No questions match. {% if request.user.is_authenticated %}Be the first to ask one above.{% endif %}</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
