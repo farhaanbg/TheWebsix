@@ -1,0 +1,208 @@
+/* Q&A page. Re-uses the shared colours from community/style.css (.da-page). */
+
+.qa-page .qa-hero {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.qa-page .qa-hero p {
+    max-width: 560px;
+    margin: 12px auto 0;
+    color: #d1d5db;
+}
+
+.qa-page .qa-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 16px;
+    color: #d1d5db;
+}
+
+.qa-page .qa-stats strong {
+    color: var(--da-yellow);
+    font-size: 20px;
+}
+
+.qa-page .qa-notice {
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #1b3a26;
+    border: 1px solid var(--da-green);
+}
+
+/* ----- Ask box ----- */
+.qa-page .qa-ask {
+    margin-bottom: 28px;
+    padding: 24px;
+    border-radius: 16px;
+    background: #111e16;
+    border: 1px solid var(--da-border);
+}
+
+.qa-page .qa-ask h3 {
+    margin-bottom: 16px;
+    font-size: 20px;
+}
+
+.qa-page .qa-form {
+    display: grid;
+    gap: 14px;
+}
+
+.qa-page .qa-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #d1d5db;
+}
+
+.qa-page .da-input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--da-border);
+    background: #0c1510;
+    color: #fff;
+}
+
+.qa-page .da-input:focus {
+    outline: 2px solid var(--da-yellow);
+    outline-offset: 1px;
+}
+
+/* Browser (HTML5) validation: red border once the user has typed something invalid. */
+.qa-page .da-input:user-invalid {
+    border-color: #ef4444;
+}
+
+.qa-page .qa-error,
+.qa-page .qa-error ul {
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+    color: #f87171;
+    font-size: 14px;
+}
+
+.qa-page .qa-form button {
+    justify-self: start;
+}
+
+/* ----- Filters ----- */
+.qa-page .qa-filters {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+/* ----- Question cards ----- */
+.qa-page .qa-list {
+    display: grid;
+    gap: 16px;
+}
+
+.qa-page .qa-card {
+    padding: 20px;
+    border-radius: 16px;
+    background: #111e16;
+    border: 1px solid var(--da-border);
+}
+
+.qa-page .qa-card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.qa-page .qa-card-head time {
+    display: block;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.qa-page .qa-avatar {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--da-card);
+    color: #0c1510;
+    font-weight: 700;
+}
+
+.qa-page .qa-badge {
+    margin-left: auto;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #1b2b1e;
+    color: var(--da-yellow);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.qa-page .qa-card h4 {
+    margin: 0 0 6px;
+    font-size: 18px;
+}
+
+.qa-page .qa-details {
+    color: #d1d5db;
+}
+
+.qa-page .qa-answer {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-left: 4px solid var(--da-yellow);
+    border-radius: 0 8px 8px 0;
+    background: #0c1510;
+}
+
+.qa-page .qa-answer-by {
+    margin-bottom: 4px;
+    color: var(--da-yellow);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.qa-page .qa-waiting,
+.qa-page .qa-muted {
+    margin-top: 12px;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.qa-page .qa-link {
+    border: 0;
+    background: none;
+    padding: 0;
+    color: var(--da-yellow);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.qa-page .qa-delete {
+    margin-top: 12px;
+}
+
+.qa-page .qa-danger {
+    color: #f87171;
+    font-size: 14px;
+}
+
+/* ----- Phones ----- */
+@media (max-width: 700px) {
+    .qa-page .qa-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .qa-page .qa-badge {
+        display: none;
+    }
+}

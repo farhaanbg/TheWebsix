@@ -10,6 +10,7 @@ urlpatterns = [
     path('', include('home.urls')),
     path('hikes/', include('hikes.urls')),
     path('bookings/', include('bookings.urls')),
+    path('qa/', include('qa.urls')),
     path('admin/', admin.site.urls),
 
     # Registration, login and profiles
